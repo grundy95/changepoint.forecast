@@ -1,16 +1,29 @@
 Package: changepoint.forecast
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Sequential Changepoint Detection of Forecast Errors
+Version: 0.01
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Thomas",
+           family = "Grundy",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license
+           email = "t.grundy1@lancaster.ac.uk",
+           comment = c(ORCID = "0000-0003-1723-3217"))
+Description: Performs sequential changepoint detection on forecast errors to identify if forecasts have become 'out-of-control'. 
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
+Imports: 
+    purrr,
+    fdapace,
+    pbapply,
+    dplyr,
+    forecast,
+    stats,
+    tibble,
+    tidyr
+Depends: 
+    R (>= 2.10)
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

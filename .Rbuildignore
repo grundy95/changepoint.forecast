@@ -1,2 +1,4 @@
 ^changepoint\.forecast\.Rproj$
 ^\.Rproj\.user$
+^LICENSE\.md$
+^data-raw$
