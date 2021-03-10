@@ -28,7 +28,7 @@ object of class \code{cptFor}. If \code{Class=FALSE} a list with elements:
 Calculate one-step-ahead forecast errors from an automatically chosen Exponential Smoothing model based upon training data.
 }
 \examples{
-#' X = stats::arima.sim(list(ar=c(0.3, 0.1, -0.4), ma=c(0.5, 0.2)), n=500)
+X = stats::arima.sim(list(ar=c(0.3, 0.1, -0.4), ma=c(0.5, 0.2)), n=500)
 ans = forecastEs(X, m=300)
 summary(ans)
 }

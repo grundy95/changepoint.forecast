@@ -9,9 +9,6 @@
 #' @return A function with one parameter $k$
 
 cusumPageGenerator = function(X, m, oneSidedAlt = FALSE){
-  if(!(is.list(X))){
-    X = as.list(X)
-  }
   n = length(X)
   if(m >= n){
     stop('Training sample must be smaller than size of data')

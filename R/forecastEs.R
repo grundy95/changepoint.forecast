@@ -16,11 +16,14 @@
 #' @export
 #'
 #' @examples
-#' #' X = stats::arima.sim(list(ar=c(0.3, 0.1, -0.4), ma=c(0.5, 0.2)), n=500)
+#' X = stats::arima.sim(list(ar=c(0.3, 0.1, -0.4), ma=c(0.5, 0.2)), n=500)
 #' ans = forecastEs(X, m=300)
 #' summary(ans)
 forecastEs = function(X, m, Model='XXX', Class=TRUE, ...){
-  model = smooth::es(X[1:m], h=1, model=Model, ...)
+  if(class(X)!='ts'){
+    X=stats::ts(X)
+  }
+  model = smooth::es(subset(X, end=m), h=1, model=Model, ...)
   forecastErrors = smooth::es(X, model=model, h=1)$residuals
   if(Class){
     return(new('cptFor',

@@ -4,10 +4,15 @@
 #'
 #' @param X time series. Can be a numeric vector or a `ts` object
 #' @param m length of training period
-#' @param sigma2 variance of data in training period. Default is `NULL` and variance is estimated using `var()` (assumes indpendence).
+#' @param detector character. Type of changepoint detector to use. Choice of
+#' \itemize{
+#'   \item{"PageCUSUM": }{Page's CUSUM detector for 2-sided alternative hypothesis}
+#'   \item{"PageCUSUM1": }{Page's CUSUM detector for 1-sided alternative hypothesis}
+#'   \item{"CUSUM": }{Original CUSUM detector for 2-sided alternative hypothesis}
+#'   \item{"CUSUM1": }{Original CUSUM detector for 1-sided alternative hypothesis}
+#' }
 #' @param gamma tuning parameter in the weight function. See details below
-#' @param CUSUMtype character. Choice between 'Page' and 'Original' CUSUM detector. See details below
-#' @param oneSidedAlt Logical. Use of the one-sided or two-sided CUSUM detectors
+#' @param sigma2 variance of data in training period. Default is `NULL` and variance is estimated using `var()` (assumes indpendence).
 #' @param critValue numeric or character:
 #' \itemize{
 #'   \item{numeric: }{This will be used as the critical value. Note this is not the raw threshold.}
@@ -34,51 +39,45 @@
 #' ans = cptSeqCUSUM(X, m=300)
 #' summary(ans)
 cptSeqCUSUM = function(X,
-                       m = 0.2*length(X),
-                       sigma2=NULL,
+                       m = ceiling(0.5*length(X)),
+                       detector='PageCUSUM',
                        gamma=0,
-                       CUSUMtype='Page',
-                       oneSidedAlt=FALSE,
+                       sigma2=NULL,
                        critValue = 'Lookup',
                        alpha=0.05,
                        samples=1000,
                        npts=500,
                        Class = TRUE){
-  CUSUMtype = toupper(CUSUMtype)
-  if(is.character(critValue)){
-    critValue = toupper(critValue)
-  }
-  if(!is.ts(X)){
-    X = ts(X)
-  }
-
+  #errorCheck()
   N = length(X)
   n = N-m
 
-  if(CUSUMtype=='PAGE'){
-    cusumFun = cusumPageGenerator(X=X, m=m, oneSidedAlt=oneSidedAlt)
-  }else if(CUSUMtype=='ORIGINAL'){
-    cusumFun = cusumGenerator(X=X, m=m, oneSidedAlt=oneSidedAlt)
+  if(detector=='PageCUSUM'){
+    cusumFun = cusumPageGenerator(X=X, m=m, oneSidedAlt=FALSE)
+  }else if(detector=='PageCUSUM1'){
+    cusumFun = cusumPageGenerator(X=X, m=m, oneSidedAlt=TRUE)
+  }else if(detector=='CUSUM'){
+    cusumFun = cusumGenerator(X=X, m=m, oneSidedAlt=FALSE)
+  }else if(detector=='CUSUM1'){
+    cusumFun = cusumGenerator(X=X, m=m, oneSidedAlt=TRUE)
   }else{
-    stop('CUSUMtype not supported. Please choose between "Page" and Original"')
+    stop('changepoint detector not supported.
+         Please choose between "PageCUSUM", "PageCUSUM1", "CUSUM" or "CUSUM1"')
   }
   cusumValues = purrr::map_dbl(1:n, cusumFun)
-
   weightValues = purrr::map_dbl(1:n, ~weightFun(m=m, k=.x, gamma=gamma))
-  if(critValue=='LOOKUP'){
-    critValue = critValLookup(gamma=gamma, alpha=alpha, CUSUMtype=CUSUMtype, oneSidedAlt=oneSidedAlt, rootDir=rootDir)
-  }else if(critValue=='SIMULATE'){
-    critValue = simCritVal(samples=samples, alpha=alpha, CUSUMtype=CUSUMtype, oneSidedAlt=oneSidedAlt, gamma=gamma, npts=npts)
+  if(critValue=='Lookup'){
+    critValue = critValLookup(gamma=gamma, alpha=alpha, detector=detector)
+  }else if(critValue=='Simulate'){
+    critValue = simCritVal(samples=samples, alpha=alpha, detector=detector, gamma=gamma, npts=npts)
   }else if(!is.numeric(critValue)){
     stop('critValue should either be "Lookup", "Simulate" or a single number containing the critical value to be used')
   }
-
   if(is.null(sigma2)){
-    sigma2 = var(X[1:m])
+    sigma2 = stats::var(X[1:m])
   }
   thresholdValues = weightValues*critValue*sqrt(sigma2)
   thresholdExceeded = cusumValues>thresholdValues
-
   if(all(!thresholdExceeded)){
     tau = Inf
   }else{
@@ -86,11 +85,11 @@ cptSeqCUSUM = function(X,
   }
   if(Class){
     return(new("cptFor",
-               m = m,
                errors = X,
+               m = m,
                errorsVar = sigma2,
                cusum = cusumValues,
-               cusumThreshold = thresholdValues,
+               threshold = thresholdValues,
                tau = tau))
   }else{
     return(list('tau'=tau,

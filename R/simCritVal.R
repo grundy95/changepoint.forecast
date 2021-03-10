@@ -3,8 +3,13 @@
 #' Simulates a critical value from the asymptotic distribution of the chosen CUSUM detector under the no change scenario.
 #' @param samples Number of samples to simulate from asymptotic distribution
 #' @param alpha Type 1 error
-#' @param CUSUMtype character. Choice between 'Page' and 'Original' CUSUM detector. See details below
-#' @param oneSidedAlt Logical. Use of the one-sided or two-sided CUSUM detectors
+#' @param detector character. Type of changepoint detector to use. Choice of
+#' \itemize{
+#'   \item{"PageCUSUM": }{Page's CUSUM detector for 2-sided alternative hypothesis}
+#'   \item{"PageCUSUM1": }{Page's CUSUM detector for 1-sided alternative hypothesis}
+#'   \item{"CUSUM": }{Original CUSUM detector for 2-sided alternative hypothesis}
+#'   \item{"CUSUM1": }{Original CUSUM detector for 1-sided alternative hypothesis}
+#' }
 #' @param gamma tuning parameter in the weight function
 #' @param npts Number of points in discretization of Weiner process
 #' @param progressBar Logical. Show progress bar
@@ -14,49 +19,51 @@
 #'
 #' @examples
 #' ans = simCritVal(samples=100, npts=20)
-simCritVal = function(samples=1000, alpha=0.05, CUSUMtype='Page', oneSidedAlt=FALSE, gamma=0, npts=500, progressBar=TRUE){
-  CUSUMtype = toupper(CUSUMtype)
-  limDistSamples = limDistGenerator(CUSUMtype=CUSUMtype, oneSidedAlt=oneSidedAlt, gamma=gamma, samples=samples, npts=npts, progressBar=progressBar)
-  return(as.numeric(quantile(limDistSamples,1-alpha)))
+simCritVal = function(samples=1000, alpha=0.05, detector='PageCUSUM', gamma=0, npts=500, progressBar=TRUE){
+  limDistSamples = limDistGenerator(detector=detector, gamma=gamma, samples=samples, npts=npts, progressBar=progressBar)
+  return(as.numeric(stats::quantile(limDistSamples,1-alpha)))
 }
 
 #' Samples from Limit Distributions of CUSUM Detectors
 #'
 #' Generates required number of samples from the asymptotic limit distribution of the chosen CUSUM detector under the scenario of no change.
-#' @param samples Number of samples to simulate from asymptotic distribution
-#' @param alpha Type 1 error
-#' @param CUSUMtype character. Choice between 'Page' and 'Original' CUSUM detector. See details below
-#' @param oneSidedAlt Logical. Use of the one-sided or two-sided CUSUM detectors
+#' @param detector character. Type of changepoint detector to use. Choice of
+#' \itemize{
+#'   \item{"PageCUSUM": }{Page's CUSUM detector for 2-sided alternative hypothesis}
+#'   \item{"PageCUSUM1": }{Page's CUSUM detector for 1-sided alternative hypothesis}
+#'   \item{"CUSUM": }{Original CUSUM detector for 2-sided alternative hypothesis}
+#'   \item{"CUSUM1": }{Original CUSUM detector for 1-sided alternative hypothesis}
+#' }
 #' @param gamma tuning parameter in the weight function
+#' @param samples Number of samples to simulate from asymptotic distribution
 #' @param npts Number of points in discretization of Weiner process
 #' @param progressBar Logical. Show progress bar
 #'
 #' @return numeric vector of samples
-limDistGenerator = function(CUSUMtype='Page', oneSidedAlt=FALSE, gamma=0, samples=1000, npts=500, progressBar=TRUE){
-  CUSUMtype = toupper(CUSUMtype)
+limDistGenerator = function(detector='PageCUSUM', gamma=0, samples=1000, npts=500, progressBar=TRUE){
   weinerRaw = fdapace::Wiener(n=samples,pts=seq(0,1,length=npts), K=npts)
-  if((CUSUMtype=='PAGE')&&oneSidedAlt){
+  if(detector=='PageCUSUM1'){
     if(progressBar){
       limSamples = pbapply::pbapply(weinerRaw, 1, p1, npts=npts, gamma=gamma)
     }else{
       limSamples = apply(weinerRaw, 1, p1, npts=npts, gamma=gamma)
     }
     return(limSamples)
-  }else if((CUSUMtype=='PAGE')&&(!oneSidedAlt)){
+  }else if(detector=='PageCUSUM'){
     if(progressBar){
       limSamples = pbapply::pbapply(weinerRaw, 1, p2, npts=npts, gamma=gamma)
     }else{
       limSamples = apply(weinerRaw, 1, p2, npts=npts, gamma=gamma)
     }
     return(limSamples)
-  }else if((CUSUMtype=='ORIGINAL')&&oneSidedAlt){
+  }else if(detector=='CUSUM1'){
     if(progressBar){
       limSamples = pbapply::pbapply(weinerRaw, 1, c1, npts=npts, gamma=gamma)
     }else{
       limSamples = apply(weinerRaw, 1, c1, npts=npts, gamma=gamma)
     }
     return(limSamples)
-  }else if((CUSUMtype=='ORIGINAL')&&(!oneSidedAlt)){
+  }else if(detector=='CUSUM'){
     if(progressBar){
       limSamples = pbapply::pbapply(weinerRaw, 1, c2, npts=npts, gamma=gamma)
     }else{
@@ -64,7 +71,7 @@ limDistGenerator = function(CUSUMtype='Page', oneSidedAlt=FALSE, gamma=0, sample
     }
     return(limSamples)
   }else{
-    stop('CUSUMtype not recognized. Please choose between "Page" and "Original"')
+    stop('Detector not recognized. Please choose from "PageCUSUM", PageCUSUM1", "CUSUM" or "CUSUM1"')
   }
 }
 
@@ -112,7 +119,7 @@ p1 = function(w, npts, gamma){
 #'
 #' @return numeric
 p1inf = function(w, t, npts){
-  ans = map_dbl(1:t, ~((1-t/npts)/(1-.x/npts)) * w[.x])
+  ans = purrr::map_dbl(1:t, ~((1-t/npts)/(1-.x/npts)) * w[.x])
   return(min(ans))
 }
 
@@ -137,6 +144,6 @@ p2 = function(w, npts, gamma){
 #'
 #' @return numeric
 p2sup = function(w, t, npts, gamma){
-  ans = map_dbl(1:t, ~1/((t/npts)^gamma) * abs(w[t] - ((1-t/npts)/(1-./npts)) * w[.]))
+  ans = purrr::map_dbl(1:t, ~1/((t/npts)^gamma) * abs(w[t] - ((1-t/npts)/(1-./npts)) * w[.]))
   return(max(ans))
 }

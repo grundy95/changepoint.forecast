@@ -10,9 +10,6 @@
 
 
 cusumGenerator = function(X, m, oneSidedAlt=FALSE){
-  if(!(is.list(X))){
-    X = as.list(X)
-  }
   n = length(X)
   if(m >= n){
     stop('Training sample must be smaller than size of data')

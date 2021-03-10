@@ -3,37 +3,33 @@
 #' Lookup pre-simulated critical value of asymptotic distribution of chosen CUSUM detector
 #' @param gamma tuning parameter
 #' @param alpha type 1 error
-#' @param CUSUMtype character. Choice between 'Page' and 'Original' CUSUM detector. See details below
-#' @param oneSidedAlt Logical. Use of the one-sided or two-sided CUSUM detectors
+#' @param detector character. Type of changepoint detector to use. Choice of
+#' \itemize{
+#'   \item{"PageCUSUM": }{Page's CUSUM detector for 2-sided alternative hypothesis}
+#'   \item{"PageCUSUM1": }{Page's CUSUM detector for 1-sided alternative hypothesis}
+#'   \item{"CUSUM": }{Original CUSUM detector for 2-sided alternative hypothesis}
+#'   \item{"CUSUM1": }{Original CUSUM detector for 1-sided alternative hypothesis}
+#' }
 #'
-#' @return
+#' @return numeric.
+#'
+#' @importFrom rlang .data
 #' @export
 #'
 #' @examples
 #' critValLookup(gamma=0,
 #'               alpha=0.05,
-#'               CUSUMtype='Page',
-#'               oneSidedAlt=FALSE)
-critValLookup = function(gamma=0, alpha=0.05, CUSUMtype='Page', oneSidedAlt=FALSE){
-  CUSUMtype=toupper(CUSUMtype)
+#'               detector='PageCUSUM')
+critValLookup = function(gamma=0, alpha=0.05, detector='PageCUSUM'){
   if(!(gamma %in% critValTable$Gamma)){
     stop(paste0(c('gamma value not stored in table. Either simulate a critical value using function simCritVal or try one of the following gamma values:\n',unique(critValTable$Gamma)), collapse=' '))
   }
   if(!(alpha %in% critValTable$Alpha)){
     stop(paste0(c('alpha value not stored in table. Either simulate a critical value using function simCritVal or try one of the following alpha values:\n',unique(critValTable$Alpha)), collapse=' '))
   }
-  if(!((CUSUMtype=='PAGE')||(CUSUMtype=='ORIGINAL'))){
-    stop('CUSUMtype not found. Please use "Page" or "Original"')
+  if(!(detector %in% critValTable$Detector)){
+    stop(paste0(c('detector not in table. Either simulate a critical value using function simCritVal or try one of the following detectors:\n',unique(critValTable$Detector)), collapse=' '))
   }
-  if(!is.logical(oneSidedAlt)){
-    stop('oneSidedAlt should be logical. If TRUE then the critical value for a one-sided CUSUM is returned. If FALSE the two-sided critical value is returned')
-  }
-
-  if(oneSidedAlt){
-    H1 = 'One-sided'
-  }else{
-    H1 = 'Two-sided'
-  }
-  ans = dplyr::filter(critValTable, CusumType==CUSUMtype, Alternative==H1, Gamma==gamma, Alpha==alpha)
+  ans = dplyr::filter(critValTable, .data$Detector==detector, .data$Gamma==gamma, .data$Alpha==alpha)
   return(ans$CritVal)
 }

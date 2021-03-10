@@ -4,19 +4,23 @@
 \alias{critValLookup}
 \title{Lookup Critical Value}
 \usage{
-critValLookup(gamma = 0, alpha = 0.05, CUSUMtype = "Page", oneSidedAlt = FALSE)
+critValLookup(gamma = 0, alpha = 0.05, detector = "PageCUSUM")
 }
 \arguments{
 \item{gamma}{tuning parameter}
 
 \item{alpha}{type 1 error}
 
-\item{CUSUMtype}{character. Choice between 'Page' and 'Original' CUSUM detector. See details below}
-
-\item{oneSidedAlt}{Logical. Use of the one-sided or two-sided CUSUM detectors}
+\item{detector}{character. Type of changepoint detector to use. Choice of
+\itemize{
+\item{"PageCUSUM": }{Page's CUSUM detector for 2-sided alternative hypothesis}
+\item{"PageCUSUM1": }{Page's CUSUM detector for 1-sided alternative hypothesis}
+\item{"CUSUM": }{Original CUSUM detector for 2-sided alternative hypothesis}
+\item{"CUSUM1": }{Original CUSUM detector for 1-sided alternative hypothesis}
+}}
 }
 \value{
-
+numeric.
 }
 \description{
 Lookup pre-simulated critical value of asymptotic distribution of chosen CUSUM detector
@@ -24,6 +28,5 @@ Lookup pre-simulated critical value of asymptotic distribution of chosen CUSUM d
 \examples{
 critValLookup(gamma=0,
               alpha=0.05,
-              CUSUMtype='Page',
-              oneSidedAlt=FALSE)
+              detector='PageCUSUM')
 }

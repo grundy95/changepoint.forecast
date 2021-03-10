@@ -21,11 +21,11 @@
 #' summary(ans)
 forecastAutoArima = function(X, m, trend=FALSE, Class=TRUE, ...){
   if(class(X)!='ts'){
-    X = ts(X)
+    X = stats::ts(X)
   }
   if(trend){
     model = forecast::auto.arima(subset(X, end=m), xreg=1:m, d=0, D=0, ...)
-    forecastErrors = forecast::Arima(X, model=model, xreg=1:n)$residuals
+    forecastErrors = forecast::Arima(X, model=model, xreg=1:length(X))$residuals
   }else{
     model = forecast::auto.arima(subset(X, end=m), ...)
     forecastErrors = forecast::Arima(X, model=model)$residuals

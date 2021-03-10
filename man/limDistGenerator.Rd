@@ -5,8 +5,7 @@
 \title{Samples from Limit Distributions of CUSUM Detectors}
 \usage{
 limDistGenerator(
-  CUSUMtype = "Page",
-  oneSidedAlt = FALSE,
+  detector = "PageCUSUM",
   gamma = 0,
   samples = 1000,
   npts = 500,
@@ -14,9 +13,13 @@ limDistGenerator(
 )
 }
 \arguments{
-\item{CUSUMtype}{character. Choice between 'Page' and 'Original' CUSUM detector. See details below}
-
-\item{oneSidedAlt}{Logical. Use of the one-sided or two-sided CUSUM detectors}
+\item{detector}{character. Type of changepoint detector to use. Choice of
+\itemize{
+\item{"PageCUSUM": }{Page's CUSUM detector for 2-sided alternative hypothesis}
+\item{"PageCUSUM1": }{Page's CUSUM detector for 1-sided alternative hypothesis}
+\item{"CUSUM": }{Original CUSUM detector for 2-sided alternative hypothesis}
+\item{"CUSUM1": }{Original CUSUM detector for 1-sided alternative hypothesis}
+}}
 
 \item{gamma}{tuning parameter in the weight function}
 
@@ -25,8 +28,6 @@ limDistGenerator(
 \item{npts}{Number of points in discretization of Weiner process}
 
 \item{progressBar}{Logical. Show progress bar}
-
-\item{alpha}{Type 1 error}
 }
 \value{
 numeric vector of samples

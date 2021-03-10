@@ -6,11 +6,10 @@
 \usage{
 cptSeqCUSUM(
   X,
-  m = 0.2 * length(X),
-  sigma2 = NULL,
+  m = ceiling(0.5 * length(X)),
+  detector = "PageCUSUM",
   gamma = 0,
-  CUSUMtype = "Page",
-  oneSidedAlt = FALSE,
+  sigma2 = NULL,
   critValue = "Lookup",
   alpha = 0.05,
   samples = 1000,
@@ -23,13 +22,17 @@ cptSeqCUSUM(
 
 \item{m}{length of training period}
 
-\item{sigma2}{variance of data in training period. Default is \code{NULL} and variance is estimated using \code{var()} (assumes indpendence).}
+\item{detector}{character. Type of changepoint detector to use. Choice of
+\itemize{
+\item{"PageCUSUM": }{Page's CUSUM detector for 2-sided alternative hypothesis}
+\item{"PageCUSUM1": }{Page's CUSUM detector for 1-sided alternative hypothesis}
+\item{"CUSUM": }{Original CUSUM detector for 2-sided alternative hypothesis}
+\item{"CUSUM1": }{Original CUSUM detector for 1-sided alternative hypothesis}
+}}
 
 \item{gamma}{tuning parameter in the weight function. See details below}
 
-\item{CUSUMtype}{character. Choice between 'Page' and 'Original' CUSUM detector. See details below}
-
-\item{oneSidedAlt}{Logical. Use of the one-sided or two-sided CUSUM detectors}
+\item{sigma2}{variance of data in training period. Default is \code{NULL} and variance is estimated using \code{var()} (assumes indpendence).}
 
 \item{critValue}{numeric or character:
 \itemize{
