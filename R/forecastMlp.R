@@ -28,7 +28,7 @@ forecastMlp = function(X, m, trainData, trend=FALSE, Class=TRUE, ...){
   if(trend){
     df = data.frame('trainData'=trainData, 'Time'=1:length(trainData))
     trendModel = stats::lm(trainData~Time, data=df)
-    trainData = trendModel$coefficients[1]-(1:length(trainData))*trendModel$coefficients[2]
+    trainData = trainData - trendModel$coefficients[1]-(1:length(trainData))*trendModel$coefficients[2]
     X = X-trendModel$coefficients[1]-((length(trainData)+1):(length(trainData)+length(X)))*trendModel$coefficients[2]
   }
   if(class(trainData)!="ts"){
@@ -41,7 +41,10 @@ forecastMlp = function(X, m, trainData, trend=FALSE, Class=TRUE, ...){
   modelTrained = nnfor::mlp(trainData, ...)
   forecast = as.numeric(forecast::forecast(modelTrained,h=1)$mean)
   for(i in 2:length(X)){
-    model = nnfor::mlp(stats::ts(c(trainData, X[1:(i-1)])), model = modelTrained)
+    model = nnfor::mlp(stats::ts(c(trainData, subset(X, end=i-1)),
+                                 start=stats::start(trainData),
+                                 frequency=stats::frequency(trainData)),
+                       model = modelTrained)
     forecast[i] = as.numeric(forecast::forecast(model, h=1)$mean)
   }
   forecastErrors = X-forecast
