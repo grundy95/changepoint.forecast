@@ -42,6 +42,7 @@ plotMulti = function(x, names){
                                  names_transform = list(Series = ~ readr::parse_factor(.x, levels=c('CUSUM', 'CUSUM2'), ordered=TRUE)),
                                  values_to='Tau')
     for(i in 2:length(x)){
+      n = length(x[[i]]@X)
       tibTemp = tibble::tibble('Method'=names[[i]],
                                'Time'=1:(n-x[[i]]@m),
                                'X'=x[[i]]@X[(x[[i]]@m+1):n],
