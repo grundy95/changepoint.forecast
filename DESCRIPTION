@@ -27,7 +27,8 @@ Imports:
     rlang,
     tidyselect,
     smooth,
-    readr
+    readr,
+    nnfor
 Depends: 
     R (>= 2.10)
 Suggests: 
