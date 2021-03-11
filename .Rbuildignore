@@ -1,5 +1,3 @@
-^renv$
-^renv\.lock$
 ^changepoint\.forecast\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$

@@ -21,7 +21,7 @@
 #' summary(ans)
 forecastAutoArima = function(X, m, trend=FALSE, Class=TRUE, ...){
   if(class(X)!='ts'){
-    X = stats::ts(X)
+    X = stats::ts(X, frequency = 1)
   }
   if(trend){
     model = forecast::auto.arima(subset(X, end=m), xreg=1:m, d=0, D=0, ...)

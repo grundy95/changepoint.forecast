@@ -13,6 +13,8 @@
 #'   \item{model: }{fitted Exponential Smoothing model based upon training data}
 #'   \item{errors: }{forecast errors}
 #' }
+#'
+#' @import forecast
 #' @export
 #'
 #' @examples
@@ -21,10 +23,10 @@
 #' summary(ans)
 forecastEs = function(X, m, Model='XXX', Class=TRUE, ...){
   if(class(X)!='ts'){
-    X=stats::ts(X)
+    X=stats::ts(X, frequency=1)
   }
-  model = smooth::es(subset(X, end=m), h=1, model=Model, ...)
-  forecastErrors = smooth::es(X, model=model, h=1)$residuals
+  model = smooth::es(y=subset(X, end=m), h=1, model=Model, ...)
+  forecastErrors = as.numeric(smooth::es(X, model=model, h=1)$residuals)
   if(Class){
     return(new('cptFor',
                X=X,
