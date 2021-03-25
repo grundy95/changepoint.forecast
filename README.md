@@ -5,13 +5,8 @@
 
 <!-- badges: start -->
 
-``` r
-use_lifecycle_badge("experimental")
-#> ✓ Setting active project to '/home/grundy/Dropbox/STOR-i/PhD/Packages/changepoint.forecast'
-#> ✓ Adding Lifecycle: experimental badge to 'README.Rmd'
-#> ● Re-knit 'README.Rmd'
-```
-
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
 The goal of changepoint.forecast is to perform sequential changepoint
