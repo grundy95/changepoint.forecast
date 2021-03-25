@@ -4,6 +4,14 @@
 # changepoint.forecast
 
 <!-- badges: start -->
+
+``` r
+use_lifecycle_badge("experimental")
+#> ✓ Setting active project to '/home/grundy/Dropbox/STOR-i/PhD/Packages/changepoint.forecast'
+#> ✓ Adding Lifecycle: experimental badge to 'README.Rmd'
+#> ● Re-knit 'README.Rmd'
+```
+
 <!-- badges: end -->
 
 The goal of changepoint.forecast is to perform sequential changepoint
@@ -34,6 +42,9 @@ This is a basic example which shows you how to solve a common problem:
 
 ```r
 library(changepoint.forecast)
+#> Registered S3 method overwritten by 'quantmod':
+#>   method            from
+#>   as.zoo.data.frame zoo
 ## basic example code
 ```
 
