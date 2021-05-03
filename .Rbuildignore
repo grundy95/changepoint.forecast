@@ -5,3 +5,5 @@
 ^README\.Rmd$
 ^\.Rprofile$
 ^\.github$
+^doc$
+^Meta$
