@@ -12,7 +12,7 @@
 #'   \item{"CUSUM1": }{Original CUSUM detector for 1-sided alternative hypothesis}
 #' }
 #' @param gamma tuning parameter in the weight function. See details below
-#' @param sigma2 variance of data in training period. Default is `NULL` and variance is estimated using `var()` (assumes indpendence).
+#' @param sigma2 variance of data in training period. Default is `NULL` and variance is estimated using `var()` (assumes independence).
 #' @param critValue numeric or character:
 #' \itemize{
 #'   \item{numeric: }{This will be used as the critical value. Note this is not the raw threshold.}

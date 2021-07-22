@@ -32,7 +32,7 @@ cptSeqCUSUM(
 
 \item{gamma}{tuning parameter in the weight function. See details below}
 
-\item{sigma2}{variance of data in training period. Default is \code{NULL} and variance is estimated using \code{var()} (assumes indpendence).}
+\item{sigma2}{variance of data in training period. Default is \code{NULL} and variance is estimated using \code{var()} (assumes independence).}
 
 \item{critValue}{numeric or character:
 \itemize{

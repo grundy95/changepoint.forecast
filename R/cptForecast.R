@@ -66,10 +66,10 @@ cptForecast = function(errors,
     errors@threshold = ans$threshold
     errors@tau = ans$tau
     if(any(is.na(errors@errors2Var))){
-      ans2 = cptSeqCUSUM(errors@errors^2, m=errors@m, detector=errors@detector, gamma=errors@gamma, sigma2=NULL, critValue=critValue, alpha=errors@alpha, samples=samples, npts=npts, Class=FALSE)
+      ans2 = cptSeqCUSUM((errors@errors-mean(errors@errors[1:errors@m]))^2, m=errors@m, detector=errors@detector, gamma=errors@gamma, sigma2=NULL, critValue=critValue, alpha=errors@alpha, samples=samples, npts=npts, Class=FALSE)
       errors@errors2Var = ans2$sigma2
     }else{
-      ans2 = cptSeqCUSUM(errors@errors^2, m=errors@m, detector=errors@detector, gamma=errors@gamma, sigma2=errors@errors2Var, critValue=critValue, alpha=errors@alpha, samples=samples, npts=npts, Class=FALSE)
+      ans2 = cptSeqCUSUM((errors@errors-mean(errors@errors[1:errors@m]))^2, m=errors@m, detector=errors@detector, gamma=errors@gamma, sigma2=errors@errors2Var, critValue=critValue, alpha=errors@alpha, samples=samples, npts=npts, Class=FALSE)
     }
     errors@cusum2 = ans2$cusum
     errors@threshold2 = ans2$threshold
@@ -77,7 +77,7 @@ cptForecast = function(errors,
     return(errors)
   }else{
     ans = cptSeqCUSUM(errors, m=m, detector=detector, gamma=gamma, sigma2=NULL, critValue=critValue, alpha=alpha, samples=samples, npts=npts, Class=FALSE)
-    ans2 = cptSeqCUSUM(errors^2, m=m, detector=detector, gamma=gamma, sigma2=NULL, critValue=critValue, alpha=alpha, samples=samples, npts=npts, Class=FALSE)
+    ans2 = cptSeqCUSUM((errors-mean(errors[1:m]))^2, m=m, detector=detector, gamma=gamma, sigma2=NULL, critValue=critValue, alpha=alpha, samples=samples, npts=npts, Class=FALSE)
     return(cptFor(errors=errors, m=m, gamma=gamma, detector=detector, alpha=alpha,
                   errorsVar=ans$sigma2, errors2Var=ans2$sigma2,
                   cusum=ans$cusum, cusum2=ans2$cusum,
