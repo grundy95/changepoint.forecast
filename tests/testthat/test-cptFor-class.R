@@ -6,7 +6,6 @@ test_that("plotting returns ggplot", {
   ans@X = stats::rnorm(500)
   ans2@X = stats::rnorm(500)
   expect_s3_class(plot(ans), "ggplot")
-  expect_s3_class(plotMulti(list(ans, ans2), names=list('model1', 'model2')), "ggplot")
   ans3 = cptSeqCUSUM(stats::rnorm(500), m=300)
   expect_s3_class(plot(ans2), "ggplot")
 })

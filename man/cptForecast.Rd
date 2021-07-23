@@ -8,6 +8,7 @@ cptForecast(
   errors,
   m = ceiling(length(errors)/2),
   detector = "PageCUSUM",
+  forecastErrorType = "Both",
   gamma = 0,
   critValue = "Lookup",
   alpha = 0.05,
@@ -16,34 +17,47 @@ cptForecast(
 )
 }
 \arguments{
-\item{errors}{numeric vector or \code{cptFor} object. Forecast errors to perform changepoint analysis upon or \code{cptFor} object containing forecast errors and m}
+\item{errors}{numeric vector. Forecast errors to perform changepoint analysis upon.}
 
 \item{m}{numeric. Length of training period where forecast errors are assumed stable.}
 
 \item{detector}{character. Type of changepoint detector to use. Choice of
 \itemize{
-\item{"PageCUSUM": }{Page's CUSUM detector for 2-sided alternative hypothesis}
-\item{"PageCUSUM1": }{Page's CUSUM detector for 1-sided alternative hypothesis}
-\item{"CUSUM": }{Original CUSUM detector for 2-sided alternative hypothesis}
-\item{"CUSUM1": }{Original CUSUM detector for 1-sided alternative hypothesis}
+\item{"PageCUSUM": }{Page's CUSUM detector for 2-sided alternative hypothesis.}
+\item{"PageCUSUM1": }{Page's CUSUM detector for 1-sided alternative hypothesis.}
+\item{"CUSUM": }{Original CUSUM detector for 2-sided alternative hypothesis.}
+\item{"CUSUM1": }{Original CUSUM detector for 1-sided alternative hypothesis.}
 }
-See details below}
+See details below.}
 
-\item{gamma}{numeric. Tuning parameter used in detector. See details below}
+\item{forecastErrorType}{character. Type of changes to look for. Choice of
+\itemize{
+\item{"Both": }{Analysis is performed on both the raw and squared forecast errors,}
+\item{"Raw": }{Analysis is only performed on the raw forecast errors. Only first
+order changes are reliably detected.}
+\item{"Squared:" }{Analysis is only performed on the centred squared forecast errors.}
+}
+See details below.}
 
-\item{critValue}{character or numeric. Critical value of normalized asymptotic distribution of chosen detector under no change. Choice of
+\item{gamma}{numeric. Tuning parameter used in detector. See details below.}
+
+\item{critValue}{character or numeric. Critical value of normalized asymptotic distribution
+of chosen detector under no change. Choice of
 \itemize{
 \item{"Lookup": }{Pre-simulated critical value is used if available}
-\item{"Simulate": }{Critical value is simulated. Note this can be time consuming in certain scenarios}
+\item{"Simulate": }{Critical value is simulated. Note this can be time consuming
+in certain scenarios}
 \item{numeric: }{Specified critical value to be used}
 }
 See details below}
 
 \item{alpha}{Type-1 error}
 
-\item{samples}{Only used if \code{critValue='Simulate'}. Number of sample of Weiner processes used to calculate critical value.}
+\item{samples}{Only used if \code{critValue='Simulate'}. Number of sample of Weiner processes
+used to calculate critical value.}
 
-\item{npts}{Only used if \code{critValue='Simulate'}. Number of points in each sample of a Weiner process used to calculate critical value.}
+\item{npts}{Only used if \code{critValue='Simulate'}. Number of points in each sample of a
+Weiner process used to calculate critical value.}
 }
 \value{
 an object of class \code{cptFor}

@@ -40,29 +40,6 @@ plot(out)
 ```
 
 
-## Forecasting
-Forecasting can also be performed using the three functions, `forecatAutoArima`, `forecastEs` or `forecastMlp`. These take raw data and perform forecast using an autoARIMA model, Exponential Smoothing model or Machine Leanrning model respectively. See their documentation for more details.
 
-These functions return an object of class `cptFor`. This object can be passed to the `cptForecast` function instead of the raw forecast errors.
 
-The example below takes and AR(1) process with a change in mean, forecasts this using the `forecast AutoArima` function and then passes the result to the `cptForecast` function to detect the change.
 
-```{r ARexample}
-set.seed(1)
-n=500
-m=300
-
-X = arima.sim(list(ar=0.3), n=n)
-X[401:500] = X[401:500] + 3
-ans = forecastAutoArima(X=X, m=m, trend=FALSE)
-ans@model
-
-ans = cptForecast(ans)
-plot(ans)
-```
-
-## Further Devlopment Needed
-
-* Method for updating results based on new data - essentially making the algorithm online.
-* Further methods for summarising `cptFor` object
-* Functionality for only testing forecast errors and/or squared forecast errors.
