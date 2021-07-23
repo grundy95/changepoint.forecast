@@ -7,7 +7,7 @@ Authors@R:
            role = c("aut", "cre"),
            email = "t.grundy1@lancaster.ac.uk",
            comment = c(ORCID = "0000-0003-1723-3217"))
-Description: Performs sequential changepoint detection on forecast errors to identify if forecasts have become inaccurate. 
+Description: Performs online changepoint detection on forecast errors to identify if forecasts have become inaccurate. 
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
