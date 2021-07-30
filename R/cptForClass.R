@@ -21,6 +21,8 @@
 #' @slot threshold2 numeric. threshold values for CUSUM values of squares of forecast errors
 #' @slot tau numeric. Time point when changepoint is flagged based upon forecast errors
 #' @slot tau2 numeric. Time point when changepoint is flagged based upon squares of forecast errors
+#' @slot version character. Version of changepoint.forecast version
+#' @slot date character. Date object was created/updated
 #'
 #' @return An object of class `cptFor`.
 #'
@@ -63,8 +65,6 @@ cptFor = setClass("cptFor",
 #' Methods for objects with S4 class \code{\linkS4class{cptFor}}
 #'
 #' @param object An object of S4 class \code{\linkS4class{cptFor}}
-#' @param x x
-#' @param y y
 #'
 #' @name cptFor-methods
 #'
@@ -113,19 +113,22 @@ setMethod('show','cptFor',function(object){
   summary(object)
 })
 
-#' @describeIn cptFor-methods Plot of `cptFor` object
+#' @describeIn cptFor Plot of `cptFor` object
 #'
+#' @param x an object of class `cptFor`
+#'
+#' @aliases plot,cptFor-method
 #' @import ggplot2
 #' @importFrom rlang .data
 #' @export
-setMethod("plot", "cptFor", function(object, x=c(), y=c()){
-  n = length(object@errors)
-  if(any(is.na(object@cusum))&&any(is.na(object@cusum2))){
+setMethod("plot", "cptFor", function(x){
+  n = length(x@errors)
+  if(any(is.na(x@cusum))&&any(is.na(x@cusum2))){
     stop("cusum or cusum2 slots needs to be filled to plot")
-  }else if(any(is.na(object@cusum2))){
-    tib = tibble::tibble('Time'=1:(n-object@m),
-                         'Errors'=object@errors[(object@m+1):n],
-                         'CUSUM'=object@cusum)
+  }else if(any(is.na(x@cusum2))){
+    tib = tibble::tibble('Time'=1:(n-x@m),
+                         'Errors'=x@errors[(x@m+1):n],
+                         'CUSUM'=x@cusum)
     tib = tidyr::pivot_longer(tib,
                               !.data$Time,
                               names_to='Series',
@@ -134,8 +137,8 @@ setMethod("plot", "cptFor", function(object, x=c(), y=c()){
                                                                                              'CUSUM'),
                                                                                     ordered=TRUE)),
                               values_to='Value')
-    tibThreshold = tibble::tibble('Time'=1:(n-object@m),
-                                  'CUSUM'=object@threshold)
+    tibThreshold = tibble::tibble('Time'=1:(n-x@m),
+                                  'CUSUM'=x@threshold)
     tibThreshold = tidyr::pivot_longer(tibThreshold,
                                        !.data$Time,
                                        names_to='Series',
@@ -143,7 +146,7 @@ setMethod("plot", "cptFor", function(object, x=c(), y=c()){
                                                                                              levels=c('CUSUM'),
                                                                                              ordered=TRUE)),
                                        values_to='Value')
-    tibTau = tibble::tibble('CUSUM'=object@tau)
+    tibTau = tibble::tibble('CUSUM'=x@tau)
     tibTau = tidyr::pivot_longer(tibTau,
                                  tidyselect::everything(),
                                  names_to='Series',
@@ -151,10 +154,10 @@ setMethod("plot", "cptFor", function(object, x=c(), y=c()){
                                                                                        levels=c('CUSUM'),
                                                                                        ordered=TRUE)),
                                  values_to='Tau')
-  }else if(any(is.na(object@cusum))){
-    tib = tibble::tibble('Time'=1:(n-object@m),
-                         'Errors'=object@errors[(object@m+1):n],
-                         'CUSUM2'=object@cusum2)
+  }else if(any(is.na(x@cusum))){
+    tib = tibble::tibble('Time'=1:(n-x@m),
+                         'Errors'=x@errors[(x@m+1):n],
+                         'CUSUM2'=x@cusum2)
     tib = tidyr::pivot_longer(tib,
                               !.data$Time,
                               names_to='Series',
@@ -163,8 +166,8 @@ setMethod("plot", "cptFor", function(object, x=c(), y=c()){
                                                                                              'CUSUM2'),
                                                                                     ordered=TRUE)),
                               values_to='Value')
-    tibThreshold = tibble::tibble('Time'=1:(n-object@m),
-                                  'CUSUM2'=object@threshold2)
+    tibThreshold = tibble::tibble('Time'=1:(n-x@m),
+                                  'CUSUM2'=x@threshold2)
     tibThreshold = tidyr::pivot_longer(tibThreshold,
                                        !.data$Time,
                                        names_to='Series',
@@ -172,7 +175,7 @@ setMethod("plot", "cptFor", function(object, x=c(), y=c()){
                                                                                              levels=c('CUSUM2'),
                                                                                              ordered=TRUE)),
                                        values_to='Value')
-    tibTau = tibble::tibble('CUSUM2'=object@tau2)
+    tibTau = tibble::tibble('CUSUM2'=x@tau2)
     tibTau = tidyr::pivot_longer(tibTau,
                                  tidyselect::everything(),
                                  names_to='Series',
@@ -181,10 +184,10 @@ setMethod("plot", "cptFor", function(object, x=c(), y=c()){
                                                                                        ordered=TRUE)),
                                  values_to='Tau')
   }else{
-    tib = tibble::tibble('Time'=1:(n-object@m),
-                         'Errors'=object@errors[(object@m+1):n],
-                         'CUSUM'=object@cusum,
-                         'CUSUM2'=object@cusum2)
+    tib = tibble::tibble('Time'=1:(n-x@m),
+                         'Errors'=x@errors[(x@m+1):n],
+                         'CUSUM'=x@cusum,
+                         'CUSUM2'=x@cusum2)
     tib = tidyr::pivot_longer(tib,
                               !.data$Time,
                               names_to='Series',
@@ -194,16 +197,16 @@ setMethod("plot", "cptFor", function(object, x=c(), y=c()){
                                                                                              'CUSUM2'),
                                                                                     ordered=TRUE)),
                               values_to='Value')
-    tibThreshold = tibble::tibble('Time'=1:(n-object@m),
-                                  'CUSUM'=object@threshold,
-                                  'CUSUM2'=object@threshold2)
+    tibThreshold = tibble::tibble('Time'=1:(n-x@m),
+                                  'CUSUM'=x@threshold,
+                                  'CUSUM2'=x@threshold2)
     tibThreshold = tidyr::pivot_longer(tibThreshold,
                                        !.data$Time,
                                        names_to='Series',
                                        names_transform = list(Series = ~ readr::parse_factor(.x, levels=c('CUSUM', 'CUSUM2'), ordered=TRUE)),
                                        values_to='Value')
-    tibTau = tibble::tibble('CUSUM'=object@tau,
-                            'CUSUM2'=object@tau2)
+    tibTau = tibble::tibble('CUSUM'=x@tau,
+                            'CUSUM2'=x@tau2)
     tibTau = tidyr::pivot_longer(tibTau,
                                  tidyselect::everything(),
                                  names_to='Series',
@@ -215,7 +218,7 @@ setMethod("plot", "cptFor", function(object, x=c(), y=c()){
     geom_line()+
     facet_grid(.data$Series~., scales='free')+
     geom_line(data=tibThreshold, linetype='dashed', col='blue')
-  if((!is.na(object@tau)&&object@tau<Inf)||(!is.na(object@tau2)&&object@tau2<Inf)){
+  if((!is.na(x@tau)&&x@tau<Inf)||(!is.na(x@tau2)&&x@tau2<Inf)){
     p = p + geom_label(data=dplyr::filter(tibTau, .data$Tau!=Inf), aes(x=-Inf, y=Inf, label=paste0('tau=',.data$Tau)), hjust='left', vjust='top')
   }
   return(p)

@@ -27,13 +27,9 @@ List of the basic method
 \section{Slots}{
 
 \describe{
-\item{\code{errors}}{ts or numeric vector. Forecast errors, one-step-ahead}
+\item{\code{errors}}{numeric vector. Forecast errors, one-step-ahead}
 
 \item{\code{m}}{numeric. Length of training data}
-
-\item{\code{X}}{ts or numeric vector. Raw time series}
-
-\item{\code{model}}{ANY. Summary of model used for forecasting}
 
 \item{\code{detector}}{character. Type of changepoint detector to use. Choice of
 \itemize{
@@ -53,7 +49,7 @@ List of the basic method
 
 \item{\code{cusum2}}{numeric. CUSUM values of squares of forecast errors}
 
-\item{\code{alpha}}{numeric. Type=1 error}
+\item{\code{alpha}}{numeric. Type-1 error}
 
 \item{\code{threshold}}{numeric. threshold values for CUSUM values of forecast errors}
 
@@ -62,5 +58,9 @@ List of the basic method
 \item{\code{tau}}{numeric. Time point when changepoint is flagged based upon forecast errors}
 
 \item{\code{tau2}}{numeric. Time point when changepoint is flagged based upon squares of forecast errors}
+
+\item{\code{version}}{character. Version of changepoint.forecast version}
+
+\item{\code{date}}{character. Date object was created/updated}
 }}
 
