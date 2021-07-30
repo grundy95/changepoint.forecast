@@ -19,8 +19,11 @@
 #'
 #' @examples
 #' ans = simCritVal(samples=100, npts=20)
-simCritVal = function(samples=1000, alpha=0.05, detector='PageCUSUM', gamma=0, npts=500, progressBar=TRUE){
-  limDistSamples = limDistGenerator(detector=detector, gamma=gamma, samples=samples, npts=npts, progressBar=progressBar)
+simCritVal = function(samples=1000, alpha=0.05, detector='PageCUSUM',
+                      gamma=0, npts=500, progressBar=TRUE){
+  limDistSamples = limDistGenerator(detector=detector, gamma=gamma,
+                                    samples=samples, npts=npts,
+                                    progressBar=progressBar)
   return(as.numeric(stats::quantile(limDistSamples,1-alpha)))
 }
 
