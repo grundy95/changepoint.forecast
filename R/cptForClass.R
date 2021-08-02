@@ -57,7 +57,7 @@ cptFor = setClass("cptFor",
                             threshold2= NA_real_,
                             tau = NA_real_,
                             tau2 = NA_real_,
-                            version=as(packageVersion("changepoint.geo"),'character'),
+                            version=as(packageVersion("changepoint.forecast"),'character'),
                             date=date())
 )
 #' cptFor Methods
