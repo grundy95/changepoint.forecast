@@ -1,6 +1,6 @@
 Package: changepoint.forecast
 Title: Sequential Changepoint Detection of Forecast Errors
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: 
     person(given = "Thomas",
            family = "Grundy",
