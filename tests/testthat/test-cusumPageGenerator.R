@@ -1,0 +1,18 @@
+test_that("cusumPageGenerator returns a function/closure", {
+  X=stats::rnorm(500)
+  expect_type(cusumPageGenerator(X, m=300), "closure")
+  expect_type(cusumPageGenerator(X, m=300, oneSidedAlt=TRUE), "closure")
+})
+
+test_that("cusumPageGenerator errors correctly", {
+  X=stats::rnorm(100)
+  expect_error(cusumPageGenerator(X, m=300),
+               'Training sample must be smaller than size of data')
+})
+
+test_that("cusumPageGenerator function works as expected",{
+  X=stats::rnorm(500)
+  fun = cusumPageGenerator(X, m=300)
+  expect_type(fun(50), "double")
+  expect_error(fun(300), 'k too large')
+})
