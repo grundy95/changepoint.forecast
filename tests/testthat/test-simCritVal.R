@@ -5,6 +5,8 @@ test_that("limitDistGenerator works for different detectors",{
     expect_vector(ans1, ptype=double(), size=20)
     expect_vector(ans2, ptype=double(), size=20)
   }
+  expect_error(limDistGenerator(detector='Normal'),
+               'Detector not recognized. Please choose from "PageCUSUM", PageCUSUM1", "CUSUM" or "CUSUM1"')
 })
 
 test_that("simCritVal returns single numeric",{
