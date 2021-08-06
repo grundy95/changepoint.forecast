@@ -11,10 +11,14 @@
 \alias{cusum<-}
 \alias{cusum2<-}
 \alias{alpha<-}
+\alias{critValue<-}
 \alias{threshold<-}
 \alias{threshold2<-}
 \alias{tau<-}
 \alias{tau2<-}
+\alias{updateStats<-}
+\alias{forecastErrorType<-}
+\alias{updateStats2<-}
 \title{Replacement Functions - Generic}
 \usage{
 errors(x) <- value
@@ -35,6 +39,8 @@ cusum2(x) <- value
 
 alpha(x) <- value
 
+critValue(x) <- value
+
 threshold(x) <- value
 
 threshold2(x) <- value
@@ -42,6 +48,12 @@ threshold2(x) <- value
 tau(x) <- value
 
 tau2(x) <- value
+
+updateStats(x) <- value
+
+forecastErrorType(x) <- value
+
+updateStats2(x) <- value
 }
 \arguments{
 \item{x}{object of class \code{\linkS4class{cptFor}}}

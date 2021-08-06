@@ -1,6 +1,6 @@
 #' Sequential Changepoint Analysis of Forecast Errors
 #'
-#' This function performs sequential changepoint analysis on the supplied forecast errors
+#' This function performs sequential changepoint analysis on supplied forecast errors
 #' to detect when forecasts become inaccurate and need modifying.
 #'
 #' @param errors numeric vector. Forecast errors to perform changepoint analysis upon.
@@ -60,25 +60,33 @@ cptForecast = function(errors,
     ans2 = cptSeqCUSUM((errors-mean(errors[1:m]))^2, m=m, detector=detector, gamma=gamma,
                        sigma2=NULL, critValue=critValue, alpha=alpha, samples=samples,
                        npts=npts, Class=FALSE)
-    return(cptFor(errors=errors, m=m, gamma=gamma, detector=detector, alpha=alpha,
+    return(cptFor(errors=errors, m=m, gamma=gamma, detector=detector,
+                  forecastErrorType=forecastErrorType,
+                  alpha=alpha, critValue=ans$critValue,
                   errorsVar=ans$sigma2, errors2Var=ans2$sigma2,
                   cusum=ans$cusum, cusum2=ans2$cusum,
                   threshold=ans$threshold, threshold2=ans2$threshold,
-                  tau=ans$tau, tau2=ans2$tau))
+                  tau=ans$tau, tau2=ans2$tau,
+                  updateStats=ans$updateStats, updateStats2=ans2$updateStats))
   }else if(forecastErrorType=='Raw'){
     ans = cptSeqCUSUM(errors, m=m, detector=detector, gamma=gamma, sigma2=NULL,
                       critValue=critValue, alpha=alpha, samples=samples,
                       npts=npts, Class=FALSE)
     return(cptFor(errors=errors, m=m, gamma=gamma, detector=detector, alpha=alpha,
+                  forecastErrorType=forecastErrorType,
+                  critValue = ans$critValue,
                   errorsVar=ans$sigma2, cusum=ans$cusum,
-                  threshold=ans$threshold, tau=ans$tau))
+                  threshold=ans$threshold, tau=ans$tau, updateStats=ans$updateStats))
   }else if(forecastErrorType=='Squared'){
     ans2 = cptSeqCUSUM((errors-mean(errors[1:m]))^2, m=m, detector=detector, gamma=gamma,
                        sigma2=NULL, critValue=critValue, alpha=alpha, samples=samples,
                        npts=npts, Class=FALSE)
     return(cptFor(errors=errors, m=m, gamma=gamma, detector=detector, alpha=alpha,
+                  forecastErrorType=forecastErrorType,
+                  critValue=ans2$critValue,
                   errors2Var=ans2$sigma2, cusum2=ans2$cusum,
-                  threshold2=ans2$threshold, tau2=ans2$tau))
+                  threshold2=ans2$threshold, tau2=ans2$tau,
+                  updateStats=c(mean(errors[1:m]), 0, 0), updateStats2=ans2$updateStats))
   }else{
     stop('forecastErrorType not supported. Please use one of "Both", "Raw" or "Squared"')
   }

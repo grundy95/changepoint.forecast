@@ -39,6 +39,14 @@ List of the basic method
 \item{"CUSUM1": }{Original CUSUM detector for 1-sided alternative hypothesis}
 }}
 
+\item{\code{forecastErrorType}}{character. Type of changes to look for. Choice of
+\itemize{
+\item{"Both": }{Analysis is performed on both the raw and squared forecast errors,}
+\item{"Raw": }{Analysis is only performed on the raw forecast errors. Only first
+order changes are reliably detected.}
+\item{"Squared:" }{Analysis is only performed on the centred squared forecast errors.}
+}}
+
 \item{\code{gamma}}{numeric. Tuning parameter within detector}
 
 \item{\code{errorsVar}}{numeric. Variance of forecast errors in training data}
@@ -51,6 +59,8 @@ List of the basic method
 
 \item{\code{alpha}}{numeric. Type-1 error}
 
+\item{\code{critValue}}{numeric. Critical value used in the threshold to maintain type-1 error rate}
+
 \item{\code{threshold}}{numeric. threshold values for CUSUM values of forecast errors}
 
 \item{\code{threshold2}}{numeric. threshold values for CUSUM values of squares of forecast errors}
@@ -58,6 +68,10 @@ List of the basic method
 \item{\code{tau}}{numeric. Time point when changepoint is flagged based upon forecast errors}
 
 \item{\code{tau2}}{numeric. Time point when changepoint is flagged based upon squares of forecast errors}
+
+\item{\code{updateStats}}{numeric vector. Update statistics needed for use with \code{updateForecast}}
+
+\item{\code{updateStats2}}{numeric vector. Update statistics needed for use with \code{updateForecast}}
 
 \item{\code{version}}{character. Version of changepoint.forecast version}
 

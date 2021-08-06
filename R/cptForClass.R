@@ -11,16 +11,26 @@
 #'   \item{"CUSUM": }{Original CUSUM detector for 2-sided alternative hypothesis}
 #'   \item{"CUSUM1": }{Original CUSUM detector for 1-sided alternative hypothesis}
 #' }
+#' @slot forecastErrorType character. Type of changes to look for. Choice of
+#' \itemize{
+#'   \item{"Both": }{Analysis is performed on both the raw and squared forecast errors,}
+#'   \item{"Raw": }{Analysis is only performed on the raw forecast errors. Only first
+#'   order changes are reliably detected.}
+#'   \item{"Squared:" }{Analysis is only performed on the centred squared forecast errors.}
+#' }
 #' @slot gamma numeric. Tuning parameter within detector
 #' @slot errorsVar numeric. Variance of forecast errors in training data
 #' @slot errors2Var numeric. Variance of squares of forecast errors
 #' @slot cusum numeric. CUSUM values of forecast errors
 #' @slot cusum2 numeric. CUSUM values of squares of forecast errors
 #' @slot alpha numeric. Type-1 error
+#' @slot critValue numeric. Critical value used in the threshold to maintain type-1 error rate
 #' @slot threshold numeric. threshold values for CUSUM values of forecast errors
 #' @slot threshold2 numeric. threshold values for CUSUM values of squares of forecast errors
 #' @slot tau numeric. Time point when changepoint is flagged based upon forecast errors
 #' @slot tau2 numeric. Time point when changepoint is flagged based upon squares of forecast errors
+#' @slot updateStats numeric vector. Update statistics needed for use with `updateForecast`
+#' @slot updateStats2 numeric vector. Update statistics needed for use with `updateForecast`
 #' @slot version character. Version of changepoint.forecast version
 #' @slot date character. Date object was created/updated
 #'
@@ -32,31 +42,39 @@ cptFor = setClass("cptFor",
                   representation(errors="numeric",
                                  m="numeric",
                                  detector="character",
+                                 forecastErrorType="character",
                                  gamma="numeric",
                                  errorsVar="numeric",
                                  errors2Var="numeric",
                                  cusum="numeric",
                                  cusum2="numeric",
                                  alpha="numeric",
+                                 critValue="numeric",
                                  threshold="numeric",
                                  threshold2="numeric",
                                  tau="numeric",
                                  tau2="numeric",
+                                 updateStats="numeric",
+                                 updateStats2="numeric",
                                  version="character",
                                  date="character"),
                   prototype(errors=NA_real_,
                             m=NA_real_,
                             detector=NA_character_,
+                            forecastErrorType='Raw',
                             gamma=NA_real_,
                             errorsVar=NA_real_,
                             errors2Var=NA_real_,
                             cusum=NA_real_,
                             cusum2=NA_real_,
                             alpha=NA_real_,
+                            critValue=NA_real_,
                             threshold=NA_real_,
                             threshold2= NA_real_,
                             tau = NA_real_,
                             tau2 = NA_real_,
+                            updateStats = NA_real_,
+                            updateStats2 = NA_real_,
                             version=as(packageVersion("changepoint.forecast"),'character'),
                             date=date())
 )
@@ -461,6 +479,30 @@ setMethod("alpha<-", "cptFor", function(x, value){
 
 #' @rdname retrievalGeneric
 #' @export
+setGeneric("critValue", function(x){
+  standardGeneric("critValue")
+})
+
+#' @rdname replacementGeneric
+#' @export
+setGeneric("critValue<-", function(x, value){
+  standardGeneric("critValue<-")
+})
+
+#' @rdname retrievalMethod
+#' @export
+setMethod("critValue", "cptFor", function(x){
+  x@critValue
+})
+
+#' @rdname replacementMethod
+#' @export
+setMethod("critValue<-", "cptFor", function(x, value){
+  x@critValue <- value
+})
+
+#' @rdname retrievalGeneric
+#' @export
 setGeneric("threshold", function(x){
   standardGeneric("threshold")
 })
@@ -552,4 +594,76 @@ setMethod("tau2", "cptFor", function(x){
 #' @export
 setMethod("tau2<-", "cptFor", function(x, value){
   x@tau2 <- value
+})
+
+#' @rdname retrievalGeneric
+#' @export
+setGeneric("updateStats", function(x){
+  standardGeneric("updateStats")
+})
+
+#' @rdname replacementGeneric
+#' @export
+setGeneric("updateStats<-", function(x, value){
+  standardGeneric("updateStats<-")
+})
+
+#' @rdname retrievalMethod
+#' @export
+setMethod("updateStats", "cptFor", function(x){
+  x@updateStats
+})
+
+#' @rdname replacementMethod
+#' @export
+setMethod("updateStats<-", "cptFor", function(x, value){
+  x@updateStats <- value
+})
+
+#' @rdname retrievalGeneric
+#' @export
+setGeneric("forecastErrorType", function(x){
+  standardGeneric("forecastErrorType")
+})
+
+#' @rdname replacementGeneric
+#' @export
+setGeneric("forecastErrorType<-", function(x, value){
+  standardGeneric("forecastErrorType<-")
+})
+
+#' @rdname retrievalMethod
+#' @export
+setMethod("forecastErrorType", "cptFor", function(x){
+  x@forecastErrorType
+})
+
+#' @rdname replacementMethod
+#' @export
+setMethod("forecastErrorType<-", "cptFor", function(x, value){
+  x@forecastErrorType <- value
+})
+
+#' @rdname retrievalGeneric
+#' @export
+setGeneric("updateStats2", function(x){
+  standardGeneric("updateStats2")
+})
+
+#' @rdname replacementGeneric
+#' @export
+setGeneric("updateStats2<-", function(x, value){
+  standardGeneric("updateStats2<-")
+})
+
+#' @rdname retrievalMethod
+#' @export
+setMethod("updateStats2", "cptFor", function(x){
+  x@updateStats2
+})
+
+#' @rdname replacementMethod
+#' @export
+setMethod("updateStats2<-", "cptFor", function(x, value){
+  x@updateStats2 <- value
 })

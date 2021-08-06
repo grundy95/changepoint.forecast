@@ -52,19 +52,34 @@ cptSeqCUSUM = function(X,
   N = length(X)
   n = N-m
 
+  cusumValues = 0
+  cusumA = 0
+  cusumB = 0
+  trainMean = mean(X[1:m])
   if(detector=='PageCUSUM'){
-    cusumFun = cusumPageGenerator(X=X, m=m, oneSidedAlt=FALSE)
+    for(i in 1:n){
+      cusumA = max(cusumA + X[i+m] - trainMean, 0)
+      cusumB = max(cusumB - X[i+m] + trainMean, 0)
+      cusumValues[i+1] = max(cusumA, cusumB)
+    }
   }else if(detector=='PageCUSUM1'){
-    cusumFun = cusumPageGenerator(X=X, m=m, oneSidedAlt=TRUE)
+    for(i in 1:n){
+      cusumValues[i+1] = max(cusumValues[i] + X[m+i] - trainMean, 0)
+    }
   }else if(detector=='CUSUM'){
-    cusumFun = cusumGenerator(X=X, m=m, oneSidedAlt=FALSE)
+    for(i in 1:n){
+      cusumA = cusumA + X[i+m] - trainMean
+      cusumValues[i+1] = abs(cusumA)
+    }
   }else if(detector=='CUSUM1'){
-    cusumFun = cusumGenerator(X=X, m=m, oneSidedAlt=TRUE)
+    for(i in 1:n){
+      cusumValues[i+1] = cusumValues[i] + X[m+i] - trainMean
+    }
   }else{
     stop('changepoint detector not supported.
          Please choose between "PageCUSUM", "PageCUSUM1", "CUSUM" or "CUSUM1"')
   }
-  cusumValues = purrr::map_dbl(1:n, cusumFun)
+  cusumValues = cusumValues[-1]
   weightValues = purrr::map_dbl(1:n, ~weightFun(m=m, k=.x, gamma=gamma))
   if(critValue=='Lookup'){
     critValue = critValLookup(gamma=gamma, alpha=alpha, detector=detector)
@@ -87,16 +102,21 @@ cptSeqCUSUM = function(X,
     return(new("cptFor",
                errors = X,
                m = m,
+               gamma=gamma,
+               critValue=critValue,
                detector = detector,
                errorsVar = sigma2,
                cusum = cusumValues,
                threshold = thresholdValues,
-               tau = tau))
+               tau = tau,
+               updateStats = c(trainMean, cusumA, cusumB)))
   }else{
     return(list('tau'=tau,
                 'cusum'=cusumValues,
                 'threshold'=thresholdValues,
-                'sigma2' = sigma2))
+                'sigma2' = sigma2,
+                'critValue' = critValue,
+                'updateStats' = c(trainMean, cusumA, cusumB)))
   }
 }
 

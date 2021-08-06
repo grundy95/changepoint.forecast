@@ -40,6 +40,40 @@ plot(out)
 ```
 
 
+## Online Implmentation 
+The function `cptForecast` and `updateForecast` can be used to analyse forecast errors as they become available. Say we have 300 forecast errors as training data and then we have started monitoring new forecast errors for 100 time points. We can see if any changes have been detected in the first 100 time points similarly to above.
+
+```{r inital}
+set.seed(1)
+errors = rnorm(400)
+ans = cptForecast(errors, m=300)
+summary(ans)
+```
+
+We can see from the summary that no changepoints have been detected (as expected). Now lets assume we have the new 10 time points available. We can update our analysis without having to re-analyse all the previous 400 timepoints using the `updateForecast` function.
+
+```{r update}
+set.seed(1)
+newErrors = rnorm(10)
+ans = updateForecast(newErrors, model=ans)
+summary(ans)
+```
+We can see still no changes have been detected. You could easily set up a framework where as new data becomes available, the analysis is updated and a flag can be called if a change is detected
+
+```{r online}
+set.seed(1)
+newErrors2 = rnorm(100, 2)
+for(i in 1:length(newErrors2)){
+  ans = updateForecast(newErrors2[i], model=ans)
+  if(tau(ans)<Inf||tau2(ans)<Inf){
+    Tau = min(tau(ans), tau2(ans))
+    print(paste0("Changepoint detected at time point ", Tau, ". Stopping analysis"))
+    break
+  }
+}
+summary(ans)
+plot(ans)
+```
 
 
 

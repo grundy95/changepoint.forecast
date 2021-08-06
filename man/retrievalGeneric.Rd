@@ -10,10 +10,14 @@
 \alias{cusum}
 \alias{cusum2}
 \alias{alpha}
+\alias{critValue}
 \alias{threshold}
 \alias{threshold2}
 \alias{tau}
 \alias{tau2}
+\alias{updateStats}
+\alias{forecastErrorType}
+\alias{updateStats2}
 \title{Retrieval Functions - Generic}
 \usage{
 errors(x)
@@ -32,6 +36,8 @@ cusum2(x)
 
 alpha(x)
 
+critValue(x)
+
 threshold(x)
 
 threshold2(x)
@@ -39,6 +45,12 @@ threshold2(x)
 tau(x)
 
 tau2(x)
+
+updateStats(x)
+
+forecastErrorType(x)
+
+updateStats2(x)
 }
 \arguments{
 \item{x}{object of class \code{\linkS4class{cptFor}}}

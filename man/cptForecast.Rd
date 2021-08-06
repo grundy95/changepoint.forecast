@@ -63,7 +63,7 @@ Weiner process used to calculate critical value.}
 an object of class \code{cptFor}
 }
 \description{
-This function performs sequential changepoint analysis on the supplied forecast errors
+This function performs sequential changepoint analysis on supplied forecast errors
 to detect when forecasts become inaccurate and need modifying.
 }
 \examples{

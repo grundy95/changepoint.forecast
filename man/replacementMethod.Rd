@@ -11,10 +11,14 @@
 \alias{cusum<-,cptFor-method}
 \alias{cusum2<-,cptFor-method}
 \alias{alpha<-,cptFor-method}
+\alias{critValue<-,cptFor-method}
 \alias{threshold<-,cptFor-method}
 \alias{threshold2<-,cptFor-method}
 \alias{tau<-,cptFor-method}
 \alias{tau2<-,cptFor-method}
+\alias{updateStats<-,cptFor-method}
+\alias{forecastErrorType<-,cptFor-method}
+\alias{updateStats2<-,cptFor-method}
 \title{Replacement Functions - Method}
 \usage{
 \S4method{errors}{cptFor}(x) <- value
@@ -35,6 +39,8 @@
 
 \S4method{alpha}{cptFor}(x) <- value
 
+\S4method{critValue}{cptFor}(x) <- value
+
 \S4method{threshold}{cptFor}(x) <- value
 
 \S4method{threshold2}{cptFor}(x) <- value
@@ -42,6 +48,12 @@
 \S4method{tau}{cptFor}(x) <- value
 
 \S4method{tau2}{cptFor}(x) <- value
+
+\S4method{updateStats}{cptFor}(x) <- value
+
+\S4method{forecastErrorType}{cptFor}(x) <- value
+
+\S4method{updateStats2}{cptFor}(x) <- value
 }
 \arguments{
 \item{x}{object of class \code{\linkS4class{cptFor}}}
