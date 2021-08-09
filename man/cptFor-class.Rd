@@ -4,36 +4,25 @@
 \name{cptFor-class}
 \alias{cptFor-class}
 \alias{cptFor}
-\alias{plot,cptFor,ANY-method}
-\alias{plot,cptFor-method}
 \title{S4 class for a forecast changepoint object}
-\usage{
-\S4method{plot}{cptFor,ANY}(x)
-}
-\arguments{
-\item{x}{an object of class \code{cptFor}}
-}
 \value{
 An object of class \code{cptFor}.
 }
 \description{
-List of the basic method
-}
-\section{Methods (by generic)}{
+An S4 class that contains the results of the analysis of sequential changepoint detection.
 \itemize{
-\item \code{plot}: Plot of \code{cptFor} object
-}}
-
+\item For a list of methods that can be performed on a \code{cptFor} object see \code{\link{cptFor-methods}}.
+\item For information about the retrieval functions for the slots see \code{\link{retrievalMethod}}.
+}
+Note with many of the slots a postfix 2 indicates it is related to the analysis on the squared
+forecast errors. For example \code{tau2} is the changepoint location using the squared forecast errors.
+}
 \section{Slots}{
 
 \describe{
-\item{\code{errors}}{ts or numeric vector. Forecast errors, one-step-ahead}
+\item{\code{errors}}{numeric vector. Forecast errors, one-step-ahead}
 
 \item{\code{m}}{numeric. Length of training data}
-
-\item{\code{X}}{ts or numeric vector. Raw time series}
-
-\item{\code{model}}{ANY. Summary of model used for forecasting}
 
 \item{\code{detector}}{character. Type of changepoint detector to use. Choice of
 \itemize{
@@ -41,6 +30,14 @@ List of the basic method
 \item{"PageCUSUM1": }{Page's CUSUM detector for 1-sided alternative hypothesis}
 \item{"CUSUM": }{Original CUSUM detector for 2-sided alternative hypothesis}
 \item{"CUSUM1": }{Original CUSUM detector for 1-sided alternative hypothesis}
+}}
+
+\item{\code{forecastErrorType}}{character. Type of changes to look for. Choice of
+\itemize{
+\item{"Both": }{Analysis is performed on both the raw and squared forecast errors,}
+\item{"Raw": }{Analysis is only performed on the raw forecast errors. Only first
+order changes are reliably detected.}
+\item{"Squared:" }{Analysis is only performed on the centred squared forecast errors.}
 }}
 
 \item{\code{gamma}}{numeric. Tuning parameter within detector}
@@ -53,7 +50,9 @@ List of the basic method
 
 \item{\code{cusum2}}{numeric. CUSUM values of squares of forecast errors}
 
-\item{\code{alpha}}{numeric. Type=1 error}
+\item{\code{alpha}}{numeric. Type-1 error}
+
+\item{\code{critValue}}{numeric. Critical value used in the threshold to maintain type-1 error rate}
 
 \item{\code{threshold}}{numeric. threshold values for CUSUM values of forecast errors}
 
@@ -62,5 +61,19 @@ List of the basic method
 \item{\code{tau}}{numeric. Time point when changepoint is flagged based upon forecast errors}
 
 \item{\code{tau2}}{numeric. Time point when changepoint is flagged based upon squares of forecast errors}
+
+\item{\code{updateStats}}{numeric vector. Update statistics needed for use with \code{updateForecast}}
+
+\item{\code{updateStats2}}{numeric vector. Update statistics needed for use with \code{updateForecast}}
+
+\item{\code{version}}{character. Version of changepoint.forecast version}
+
+\item{\code{date}}{character. Date object was created/updated}
 }}
 
+\examples{
+ans = cptForecast(c(stats::rnorm(400), stats::rnorm(100,3)), m=300)
+summary(ans)
+show(ans)
+plot(ans)
+}

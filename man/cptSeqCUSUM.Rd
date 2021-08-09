@@ -62,8 +62,14 @@ If \code{Class=FALSE} a list with
 \description{
 This function performs sequential changepoint analysis using a chosen CUSUM detector.
 }
+\details{
+For more details on all the majority of arguments see \code{\link{cptForecast}}. Note here X
+is equivalent to errors in \code{\link{cptForecast}}. This function is identical to calling
+\code{\link{cptForecast}} with \code{forecastErrorType="Raw"}.
+}
 \examples{
 X = c(stats::rnorm(400), stats::rnorm(100, 2))
 ans = cptSeqCUSUM(X, m=300)
 summary(ans)
+plot(ans)
 }

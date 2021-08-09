@@ -2,6 +2,10 @@
 #'
 #' This function performs sequential changepoint analysis using a chosen CUSUM detector.
 #'
+#' For more details on all the majority of arguments see \code{\link{cptForecast}}. Note here X
+#' is equivalent to errors in \code{\link{cptForecast}}. This function is identical to calling
+#' \code{\link{cptForecast}} with `forecastErrorType="Raw"`.
+#'
 #' @param X time series. Can be a numeric vector or a `ts` object
 #' @param m length of training period
 #' @param detector character. Type of changepoint detector to use. Choice of
@@ -38,6 +42,7 @@
 #' X = c(stats::rnorm(400), stats::rnorm(100, 2))
 #' ans = cptSeqCUSUM(X, m=300)
 #' summary(ans)
+#' plot(ans)
 cptSeqCUSUM = function(X,
                        m = ceiling(0.5*length(X)),
                        detector='PageCUSUM',
@@ -52,19 +57,34 @@ cptSeqCUSUM = function(X,
   N = length(X)
   n = N-m
 
+  cusumValues = 0
+  cusumA = 0
+  cusumB = 0
+  trainMean = mean(X[1:m])
   if(detector=='PageCUSUM'){
-    cusumFun = cusumPageGenerator(X=X, m=m, oneSidedAlt=FALSE)
+    for(i in 1:n){
+      cusumA = max(cusumA + X[i+m] - trainMean, 0)
+      cusumB = max(cusumB - X[i+m] + trainMean, 0)
+      cusumValues[i+1] = max(cusumA, cusumB)
+    }
   }else if(detector=='PageCUSUM1'){
-    cusumFun = cusumPageGenerator(X=X, m=m, oneSidedAlt=TRUE)
+    for(i in 1:n){
+      cusumValues[i+1] = max(cusumValues[i] + X[m+i] - trainMean, 0)
+    }
   }else if(detector=='CUSUM'){
-    cusumFun = cusumGenerator(X=X, m=m, oneSidedAlt=FALSE)
+    for(i in 1:n){
+      cusumA = cusumA + X[i+m] - trainMean
+      cusumValues[i+1] = abs(cusumA)
+    }
   }else if(detector=='CUSUM1'){
-    cusumFun = cusumGenerator(X=X, m=m, oneSidedAlt=TRUE)
+    for(i in 1:n){
+      cusumValues[i+1] = cusumValues[i] + X[m+i] - trainMean
+    }
   }else{
     stop('changepoint detector not supported.
          Please choose between "PageCUSUM", "PageCUSUM1", "CUSUM" or "CUSUM1"')
   }
-  cusumValues = purrr::map_dbl(1:n, cusumFun)
+  cusumValues = cusumValues[-1]
   weightValues = purrr::map_dbl(1:n, ~weightFun(m=m, k=.x, gamma=gamma))
   if(critValue=='Lookup'){
     critValue = critValLookup(gamma=gamma, alpha=alpha, detector=detector)
@@ -87,15 +107,21 @@ cptSeqCUSUM = function(X,
     return(new("cptFor",
                errors = X,
                m = m,
+               gamma=gamma,
+               critValue=critValue,
+               detector = detector,
                errorsVar = sigma2,
                cusum = cusumValues,
                threshold = thresholdValues,
-               tau = tau))
+               tau = tau,
+               updateStats = c(trainMean, cusumA, cusumB)))
   }else{
     return(list('tau'=tau,
                 'cusum'=cusumValues,
                 'threshold'=thresholdValues,
-                'sigma2' = sigma2))
+                'sigma2' = sigma2,
+                'critValue' = critValue,
+                'updateStats' = c(trainMean, cusumA, cusumB)))
   }
 }
 

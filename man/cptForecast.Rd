@@ -8,6 +8,7 @@ cptForecast(
   errors,
   m = ceiling(length(errors)/2),
   detector = "PageCUSUM",
+  forecastErrorType = "Both",
   gamma = 0,
   critValue = "Lookup",
   alpha = 0.05,
@@ -16,43 +17,117 @@ cptForecast(
 )
 }
 \arguments{
-\item{errors}{numeric vector or \code{cptFor} object. Forecast errors to perform changepoint analysis upon or \code{cptFor} object containing forecast errors and m}
+\item{errors}{numeric vector. Forecast errors to perform changepoint analysis upon.}
 
 \item{m}{numeric. Length of training period where forecast errors are assumed stable.}
 
 \item{detector}{character. Type of changepoint detector to use. Choice of
 \itemize{
-\item{"PageCUSUM": }{Page's CUSUM detector for 2-sided alternative hypothesis}
-\item{"PageCUSUM1": }{Page's CUSUM detector for 1-sided alternative hypothesis}
-\item{"CUSUM": }{Original CUSUM detector for 2-sided alternative hypothesis}
-\item{"CUSUM1": }{Original CUSUM detector for 1-sided alternative hypothesis}
+\item{"PageCUSUM": }{Page's CUSUM detector for 2-sided alternative hypothesis.}
+\item{"PageCUSUM1": }{Page's CUSUM detector for 1-sided alternative hypothesis.}
+\item{"CUSUM": }{Original CUSUM detector for 2-sided alternative hypothesis.}
+\item{"CUSUM1": }{Original CUSUM detector for 1-sided alternative hypothesis.}
 }
-See details below}
+See details below.}
 
-\item{gamma}{numeric. Tuning parameter used in detector. See details below}
+\item{forecastErrorType}{character. Type of changes to look for. Choice of
+\itemize{
+\item{"Both": }{Analysis is performed on both the raw and squared forecast errors,}
+\item{"Raw": }{Analysis is only performed on the raw forecast errors. Only first
+order changes are reliably detected.}
+\item{"Squared:" }{Analysis is only performed on the centred squared forecast errors.}
+}
+See details below.}
 
-\item{critValue}{character or numeric. Critical value of normalized asymptotic distribution of chosen detector under no change. Choice of
+\item{gamma}{numeric. Tuning parameter used in detector. See details below.}
+
+\item{critValue}{character or numeric. Critical value of normalized asymptotic distribution
+of chosen detector under no change. Choice of
 \itemize{
 \item{"Lookup": }{Pre-simulated critical value is used if available}
-\item{"Simulate": }{Critical value is simulated. Note this can be time consuming in certain scenarios}
+\item{"Simulate": }{Critical value is simulated. Note this can be time consuming
+in certain scenarios}
 \item{numeric: }{Specified critical value to be used}
 }
 See details below}
 
 \item{alpha}{Type-1 error}
 
-\item{samples}{Only used if \code{critValue='Simulate'}. Number of sample of Weiner processes used to calculate critical value.}
+\item{samples}{Only used if \code{critValue='Simulate'}. Number of sample of Weiner processes
+used to calculate critical value.}
 
-\item{npts}{Only used if \code{critValue='Simulate'}. Number of points in each sample of a Weiner process used to calculate critical value.}
+\item{npts}{Only used if \code{critValue='Simulate'}. Number of points in each sample of a
+Weiner process used to calculate critical value.}
 }
 \value{
 an object of class \code{cptFor}
 }
 \description{
-This function performs sequential changepoint analysis on the supplied forecast errors
+Performs sequential changepoint analysis on supplied forecast errors
 to detect when forecasts become inaccurate and need modifying.
 }
+\details{
+This function is designed to work alongside a forecasting model to automatically detect if/when
+the forecasting model becomes inaccurate. By monitoring the forecast errors, this function
+can automatically detect when a changepoint has occurred in the forecast errors indicating that the
+forecasting model being used needs updating. This function can detect first-order changes (e.g.
+mean changes) and second-order changes (e.g. variance changes) using the different \code{forecastErrorTypes}.
+See below for more details. Once analysis has been performed using this method then
+the \code{\link{updateForecast}} function can be used to analyse new forecast errors from the same
+forecasting model with repeating the analysis that has already been performed.
+
+The function takes a numeric vector of forecast errors of size \code{n}. The first \code{m} time points (as
+chosen by the user) determines the training period where no changepoints are deemed to have occurred.
+Monitoring of the forecast errors begins from time point \code{m+1} and the returned
+\code{\linkS4class{cptFor}} class contains a wide range of information including the time point
+a changepoint was detected. This is the time points after monitoring has begun not from the start of
+numeric vector of errors.
+
+There is a choice of four different detectors to use. In general, we suggest using \code{detector="PageCUSUM"}
+unless you are specifically looking for a mean/variance increase in the forecast errors in which case
+\code{detector="PageCUSUM1"}is recommended. We only recommend the \code{CUSUM} detectors if you are confident
+the changepoint will happen shortly after monitoring has begun. For more information on these detectors
+and the hyperparameter \code{gamma} see \insertCite{Fremdt2014;textual}{changepoint.forecast}.
+
+The choice of \code{forecastErrorType} depends on the type of change you expect to see in the data. This
+defaults to \code{forecastErrorType="Both"} which performs analysis on the raw forecast errors (designed for
+detecting mean changes) and the squared forecast errors (designed for detecting variance changes). If
+you are only interested in mean (first-order) changes then you can chose to only use the raw forecast
+errors with \code{forecastErrorType="Raw"} or similarly for detecting mean and/or variance changes you can
+just use the squared forecast errors with \code{forecastErrorType="Squared"}. For more information, see
+\insertCite{Grundy2021;textual}{changepoint.forecast}.
+
+The crucial parameter for obtaining fast detection of changes depends upon the \code{critValue} which
+affects the threshold the CUSUM statistic must exceed to detect a change. A number of theoretical
+critical values are stored in look-up tables which can be accessed using \code{crtiVale="Lookup"}. This
+depends on the choice of \code{detector}, \code{gamma} and \code{alpha}, where \code{alpha} is the probability of a
+false alarm as \code{m} gets large. If the critical value for your chosen parameters is not
+available then this can be simulated using \code{critValue="Simulate"}. Here you can choose some additional
+hyperparameters (\code{samples} and \code{npts}) which alter how the critical value is simulated. Note for
+larger values of \code{samples} and \code{npts} dependent on the \code{detector} this can take a substantial
+amount of time to run. Finally, a numeric can be entered for \code{critValue} i.e. from a previous call to
+\code{\link{simCritVal}}. Note this numeric is not the threshold used but a part of it. For more
+details on the full threshold used see \insertCite{Grundy2021;textual}{changepoint.forecast}.
+
+Finally, see \code{\linkS4class{cptFor}} for more information on the resulting S4 class object and
+how to use this to get relevant information from the analysis. Note the use of \code{@} rather than \code{$}
+to access slots.
+}
 \examples{
+# Mean change in forecast errors
 forecastErrors = c(stats::rnorm(400), stats::rnorm(100,2))
 ans = cptForecast(forecastErrors, m=300)
+summary(ans)
+plot(ans)
+
+# Variance change in forecast errors
+forecastErrors2 = c(stats::rnorm(400), stats::rnorm(100,0,3))
+ans2 = cptForecast(forecastErrors, m=300, forecastErrorType="Squared")
+show(ans)
+plot(ans)
+}
+\references{
+\insertRef{Fremdt2014}{changepoint.forecast}
+
+\insertRef{Grundy2021}{changepoint.forecast}
 }

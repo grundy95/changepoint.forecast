@@ -1,8 +1,8 @@
 ---
-title: "changepoint-forecast"
+title: "changepoint.forecast"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{changepoint-forecast}
+  %\VignetteIndexEntry{changepoint.forecast}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -40,29 +40,40 @@ plot(out)
 ```
 
 
-## Forecasting
-Forecasting can also be performed using the three functions, `forecatAutoArima`, `forecastEs` or `forecastMlp`. These take raw data and perform forecast using an autoARIMA model, Exponential Smoothing model or Machine Leanrning model respectively. See their documentation for more details.
+## Online Implmentation 
+The function `cptForecast` and `updateForecast` can be used to analyse forecast errors as they become available. Say we have 300 forecast errors as training data and then we have started monitoring new forecast errors for 100 time points. We can see if any changes have been detected in the first 100 time points similarly to above.
 
-These functions return an object of class `cptFor`. This object can be passed to the `cptForecast` function instead of the raw forecast errors.
-
-The example below takes and AR(1) process with a change in mean, forecasts this using the `forecast AutoArima` function and then passes the result to the `cptForecast` function to detect the change.
-
-```{r ARexample}
+```{r inital}
 set.seed(1)
-n=500
-m=300
+errors = rnorm(400)
+ans = cptForecast(errors, m=300)
+summary(ans)
+```
 
-X = arima.sim(list(ar=0.3), n=n)
-X[401:500] = X[401:500] + 3
-ans = forecastAutoArima(X=X, m=m, trend=FALSE)
-ans@model
+We can see from the summary that no changepoints have been detected (as expected). Now lets assume we have the new 10 time points available. We can update our analysis without having to re-analyse all the previous 400 timepoints using the `updateForecast` function.
 
-ans = cptForecast(ans)
+```{r update}
+set.seed(1)
+newErrors = rnorm(10)
+ans = updateForecast(newErrors, model=ans)
+summary(ans)
+```
+We can see still no changes have been detected. You could easily set up a framework where as new data becomes available, the analysis is updated and a flag can be called if a change is detected
+
+```{r online}
+set.seed(1)
+newErrors2 = rnorm(100, 2)
+for(i in 1:length(newErrors2)){
+  ans = updateForecast(newErrors2[i], model=ans)
+  if(tau(ans)<Inf||tau2(ans)<Inf){
+    Tau = min(tau(ans), tau2(ans))
+    print(paste0("Changepoint detected at time point ", Tau, ". Stopping analysis"))
+    break
+  }
+}
+summary(ans)
 plot(ans)
 ```
 
-## Further Devlopment Needed
 
-* Method for updating results based on new data - essentially making the algorithm online.
-* Further methods for summarising `cptFor` object
-* Functionality for only testing forecast errors and/or squared forecast errors.
+
