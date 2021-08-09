@@ -105,8 +105,9 @@ false alarm as \code{m} gets large. If the critical value for your chosen parame
 available then this can be simulated using \code{critValue="Simulate"}. Here you can choose some additional
 hyperparameters (\code{samples} and \code{npts}) which alter how the critical value is simulated. Note for
 larger values of \code{samples} and \code{npts} dependent on the \code{detector} this can take a substantial
-amount of time to run. Finally, a numeric can be entered for \code{critValue} i.e. from a previous call to
-\code{\link{simCritVal}}. Note this numeric is not the threshold used but a part of it. For more
+amount of time to run. For more information on \code{samples} and \code{npts} see the main vignette using
+\code{vignette('changepoint.forecast', package='changepoint.forecast')}. Finally, a numeric can be
+entered for \code{critValue} i.e. from a previous call to \code{\link{simCritVal}}. Note this numeric is not the threshold used but a part of it. For more
 details on the full threshold used see \insertCite{Grundy2021;textual}{changepoint.forecast}.
 
 Finally, see \code{\linkS4class{cptFor}} for more information on the resulting S4 class object and

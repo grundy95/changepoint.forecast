@@ -1,0 +1,94 @@
+---
+title: "changepoint.forecast: Basic Functionality"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{changepoint.forecast: Basic Functionality}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: vignette.bib
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(changepoint.forecast)
+library(stats)
+set.seed(1)
+```
+
+`changepoint.forecast` is an R package aimed to be used alongside a forecasting model. This package monitors forecast errors produced from a forecasting model and performs sequential changepoint analysis on the forecast errors to detect if/when a forecasting model becomes inaccurate. This package is based upon the paper by @Grundy2021 where this framework is discussed in more detail.
+
+This vignette runs through the basic functionality of the package with some simple examples. Only the main arguments are discussed here with the aim of getting users started with the package. For more details on the methodology; setting problem specific thresholds; and a framework for implementing this methodology in an online manor see the advanced vignette [changepoint.forecast: Methodology and Advanced Functionality](advanced.html).  
+
+## Main Functionality
+
+The main function in the package is `cptForecast`. This function takes the forecast errors from a forecasting model and performs sequential changepoint analysis to identify any changepoints. This function can detect first- and second-order changes which include the most common types of change e.g. mean changes and variance changes. Intuitively, if there is a mean change in the data you are forecasting this can cause your forecasting model to become biased which will result in a mean change in the forecast errors - this will be detected by `cptForecast` using the raw or squared forecast errors. Moreover, if there is a variance change in the data being forecasted, this can cause your prediction intervals to become inaccurate and a variance change will occur in your forecast errors - this will be detected by `cptForecast` using the squared forecast errors. For more details on how changes in the data being forecasted manifest in the forecast errors and using the raw or squared forecast errors see @Grundy2021 and [changepoint.forecast: Methodology and Advanced Functionality](advanced.html).
+
+To use the `cptForecast` function, we need `m` training forecast errors. These forecast errors are assumed to have no changepoints. These training forecast errors should be included in the `errors` argument and the length of the training period is set using the `m` argument. Say we have 500 forecast errors with a mean changepoint occurring at time point 400 (we will simulate these for the examples here), we will use the first 300 of these as the training errors. To perform our analysis on these forecast errors we can use the following code:
+
+```{r example1}
+errors = c(rnorm(400), rnorm(100, 2))
+ans = cptForecast(errors, m=300)
+summary(ans)
+```
+
+The `summary` function gives the basic outputs of the analysis and indicated whether a change was detected. Here we can see a change was detected at time point 116. This is the time after monitoring has begun so here it took the method 16 time points after the change occurred to detect it. We can also see the change was detected in the Squared Forecast Errors. 
+
+We can also plot the result of this analysis using the `plot` function. This will plot the forecast errors, the CUSUM statistic based upon the raw forecast errors and the CUSUM2 statistic which is based upon the squared forecast errors. Moreover, it shows if and when a changepoint was detected in either statistic.
+
+```{r plot1}
+plot(ans)
+```
+
+## cptFor Object
+When you use the `cptForecast` function it returns an object of class `cptFor`. This is an S4 class that contains all the information of the analysis. We have seen above that we can get a summary of this object using the function `summary` and we can plot the object using `plot`. The individual slots of the class can be accessed using either the `@` symbol (this works similarly to the `$` symbol for S3 class objects) or by using the accessor functions. There are many different slots and information contained in the `cptFor` object. See the package documentation for the full list using `?cptFor`. So to access the time point when the changepoint was detected by the raw forecast errors we would use `tau(ans)` or to access the time point when the changepoint was detected by the squared forecast errors we would use `tau2(ans)`. Note that if the slot name has a 2 postfixed it refers to the analysis on the squared forecast errors.
+
+## Different Detectors
+The default detector used for the sequential changepoint analysis is Pages 2-sided CUSUM. We recommend always using this detector unless in the following scenarios
+
+- Only interested in mean/variance increases. Here using `detector='PageCUSUM1` would be appropriate as we are only interested in testing for changes in one-direction so a one-sided hypothesis test is needed.
+- We know a change will occur shortly after monitoring. Here using `detector='CUSUM` or `detector='CUSUM1'` would be appropriate depending on whether you are interested in only mean/variance increases.
+
+For more details on these detectors see @Grundy2021 and [changepoint.forecast: Methodology and Advanced Functionality](advanced.html).
+
+## Threshold
+In the above plot you can see the blue threshold that the detector must cross to signal a changepoint. This threshold is based on the asymptotic distribution of the chosen detector. This can be altered using the arguments `critValue`, `gamma` and `alpha`. For example, if we wanted a lower false positive rate we could lower `alpha` and this would result in a higher threshold.
+
+```{r example2}
+ans2 = cptForecast(errors, m=300, alpha=0.01)
+summary(ans2)
+```
+
+Here we can see the method took 20 time points to detect the change instead of 16 with `alpha=0.05`. For more details on setting a specific threshold for given data see [changepoint.forecast: Methodology and Advanced Functionality](advanced.html).
+
+## Updating Analysis
+After performing our analysis if no changepoint has been detected we may wish to update our analysis as new data becomes available. We can do this with the `updateForecast` function without repeating the analysis on the whole data. Say we had 500 forecast errors with no changepoints, again we will use 300 as our training errors. Then we would perfrom our initial analysis as before:
+
+```{r example3}
+X2 = rnorm(500)
+ans3 = cptForecast(X2, m=300)
+summary(ans3)
+```
+
+We can see no changes were detected. Now lets say we have got 100 new forecast errors and there was a variance increase in the final 50 of these. We can update our analysis as follows:
+
+```{r example4}
+newErrors = c(rnorm(50), rnorm(50,0,3))
+ans3 = updateForecast(newErrors, model=ans3)
+summary(ans3)
+```
+
+We can see from this summary that we detected the changepoint 9 time points after the change occurred. This update function can be really useful for updating our analysis automatically as new forecast errors arrive. For an example of implementing this in an automatic framework see [changepoint.forecast: Methodology and Advanced Functionality](advanced.html).
+
+
+
+
+
+
+
+

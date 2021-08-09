@@ -41,8 +41,9 @@
 #'  available then this can be simulated using `critValue="Simulate"`. Here you can choose some additional
 #'  hyperparameters (`samples` and `npts`) which alter how the critical value is simulated. Note for
 #'  larger values of `samples` and `npts` dependent on the `detector` this can take a substantial
-#'  amount of time to run. Finally, a numeric can be entered for `critValue` i.e. from a previous call to
-#'  \code{\link{simCritVal}}. Note this numeric is not the threshold used but a part of it. For more
+#'  amount of time to run. For more information on `samples` and `npts` see the main vignette using
+#'  `vignette('changepoint.forecast', package='changepoint.forecast')`. Finally, a numeric can be
+#'  entered for `critValue` i.e. from a previous call to \code{\link{simCritVal}}. Note this numeric is not the threshold used but a part of it. For more
 #'  details on the full threshold used see \insertCite{Grundy2021;textual}{changepoint.forecast}.
 #'
 #'  Finally, see \code{\linkS4class{cptFor}} for more information on the resulting S4 class object and
