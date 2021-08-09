@@ -1,8 +1,8 @@
 ---
-title: "changepoint-forecast"
+title: "changepoint.forecast"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{changepoint-forecast}
+  %\VignetteIndexEntry{changepoint.forecast}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
