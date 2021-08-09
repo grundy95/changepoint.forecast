@@ -4,25 +4,19 @@
 \name{cptFor-class}
 \alias{cptFor-class}
 \alias{cptFor}
-\alias{plot,cptFor-method}
 \title{S4 class for a forecast changepoint object}
-\usage{
-\S4method{plot}{cptFor}(x)
-}
-\arguments{
-\item{x}{an object of class \code{cptFor}}
-}
 \value{
 An object of class \code{cptFor}.
 }
 \description{
-List of the basic method
-}
-\section{Methods (by generic)}{
+An S4 class that contains the results of the analysis of sequential changepoint detection.
 \itemize{
-\item \code{plot}: Plot of \code{cptFor} object
-}}
-
+\item For a list of methods that can be performed on a \code{cptFor} object see \code{\link{cptFor-methods}}.
+\item For information about the retrieval functions for the slots see \code{\link{retrievalMethod}}.
+}
+Note with many of the slots a postfix 2 indicates it is related to the analysis on the squared
+forecast errors. For example \code{tau2} is the changepoint location using the squared forecast errors.
+}
 \section{Slots}{
 
 \describe{
@@ -77,3 +71,9 @@ order changes are reliably detected.}
 \item{\code{date}}{character. Date object was created/updated}
 }}
 
+\examples{
+ans = cptForecast(c(stats::rnorm(400), stats::rnorm(100,3)), m=300)
+summary(ans)
+show(ans)
+plot(ans)
+}

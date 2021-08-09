@@ -2,6 +2,10 @@
 #'
 #' This function performs sequential changepoint analysis using a chosen CUSUM detector.
 #'
+#' For more details on all the majority of arguments see \code{\link{cptForecast}}. Note here X
+#' is equivalent to errors in \code{\link{cptForecast}}. This function is identical to calling
+#' \code{\link{cptForecast}} with `forecastErrorType="Raw"`.
+#'
 #' @param X time series. Can be a numeric vector or a `ts` object
 #' @param m length of training period
 #' @param detector character. Type of changepoint detector to use. Choice of
@@ -38,6 +42,7 @@
 #' X = c(stats::rnorm(400), stats::rnorm(100, 2))
 #' ans = cptSeqCUSUM(X, m=300)
 #' summary(ans)
+#' plot(ans)
 cptSeqCUSUM = function(X,
                        m = ceiling(0.5*length(X)),
                        detector='PageCUSUM',

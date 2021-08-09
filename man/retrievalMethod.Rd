@@ -59,5 +59,5 @@
 \item{x}{object of class \code{\linkS4class{cptFor}}}
 }
 \description{
-Retrieval Functions - Method
+These functions can be used to access the slots of the \code{\linkS4class{cptFor}} object.
 }

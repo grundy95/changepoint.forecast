@@ -1,6 +1,12 @@
 #' S4 class for a forecast changepoint object
 #'
-#' List of the basic method
+#' An S4 class that contains the results of the analysis of sequential changepoint detection.
+#' \itemize{
+#' \item For a list of methods that can be performed on a `cptFor` object see \code{\link{cptFor-methods}}.
+#' \item For information about the retrieval functions for the slots see \code{\link{retrievalMethod}}.
+#' }
+#' Note with many of the slots a postfix 2 indicates it is related to the analysis on the squared
+#' forecast errors. For example `tau2` is the changepoint location using the squared forecast errors.
 #'
 #' @slot errors numeric vector. Forecast errors, one-step-ahead
 #' @slot m numeric. Length of training data
@@ -38,6 +44,12 @@
 #'
 #' @import methods
 #' @export
+#'
+#' @examples
+#' ans = cptForecast(c(stats::rnorm(400), stats::rnorm(100,3)), m=300)
+#' summary(ans)
+#' show(ans)
+#' plot(ans)
 cptFor = setClass("cptFor",
                   representation(errors="numeric",
                                  m="numeric",
@@ -80,15 +92,24 @@ cptFor = setClass("cptFor",
 )
 #' cptFor Methods
 #'
-#' Methods for objects with S4 class \code{\linkS4class{cptFor}}
+#' Methods for objects with S4 class \code{\linkS4class{cptFor}}.
 #'
 #' @param object An object of S4 class \code{\linkS4class{cptFor}}
+#' @param x An object of S4 class \code{\linkS4class{cptFor}}
 #'
 #' @name cptFor-methods
 #'
+#' @examples
+#' ans = cptForecast(c(stats::rnorm(400), stats::rnorm(100,3)), m=300)
+#' summary(ans)
+#' show(ans)
+#' plot(ans)
 NULL
 
-#' @describeIn cptFor-methods Summary of `cptFor` object
+#' @describeIn cptFor-methods Summary of `cptFor` object.
+#'
+#' This includes the version of the package used; date the analysis was performed; the
+#' changepoint detector used; and information on whether a change was detected or not.
 #'
 #' @export
 setMethod("summary", "cptFor", function(object){
@@ -119,7 +140,9 @@ setMethod("summary", "cptFor", function(object){
   }
 })
 
-#' @describeIn cptFor-methods Show `cptFor` object
+#' @describeIn cptFor-methods Show `cptFor` object.
+#'
+#' This includes the `summary` method alongside all the slots of the `cptFor` object.
 #'
 #' @export
 setMethod('show','cptFor',function(object){
@@ -131,11 +154,12 @@ setMethod('show','cptFor',function(object){
   summary(object)
 })
 
-#' @describeIn cptFor Plot of `cptFor` object
+#' @describeIn cptFor-methods Plot of `cptFor` object.
 #'
-#' @param x an object of class `cptFor`
+#' This produces a plot of the forecast errors; CUSUM detector(s) and indicates whether the threshold
+#' was reached and a changepoint detected. This is a \code{\link[ggplot2]{ggplot}} object and thus
+#' can be stored and manipulated as required.
 #'
-#' @aliases plot,cptFor-method
 #' @import ggplot2
 #' @importFrom rlang .data
 #' @export
@@ -256,6 +280,8 @@ NULL
 NULL
 
 #' Retrieval Functions - Method
+#'
+#' These functions can be used to access the slots of the \code{\linkS4class{cptFor}} object.
 #'
 #' @param x object of class \code{\linkS4class{cptFor}}
 #' @name retrievalMethod

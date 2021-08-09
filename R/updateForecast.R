@@ -1,14 +1,27 @@
-#' Update Forecast Errors
+#' Update Analysis of Forecast Errors
 #'
-#' This function updates a `cptFor` object with new forecast errors. This allows for
+#' This function updates the analysis in a `cptFor` object with new forecast errors. This allows for
 #' the online implementation of the method as new forecast errors become available.
 #'
-#' @param newErrors numeric vector. New Forecast errors to perform changepoint analysis upon..
-#' @param model `cptFor` object. Output of call to function `cptForecast` where initial forecast error
-#' were analysed.
+#' This function can be embedded within a framework to allow for the sequential analysis of forecast
+#' errors as new data becomes available. Say you receive a new forecast error each day then this
+#' function can be used to update the analysis and then a flag can be created to signal when a
+#' changepoint has been detected by monitoring the `tau` and `tau2` slots.
+#'
+#' @param newErrors numeric vector. New Forecast errors to perform changepoint analysis upon.
+#' @param model \code{\linkS4class{cptFor}} object. Output of call to function `cptForecast` where
+#' initial forecast errors were analysed.
+#'
+#'
 #'
 #' @return An object of class `cptFor`
 #' @export
+#'
+#' @examples
+#' ans = cptForecast(stats::rnorm(500), m=300)
+#' ans = updateForecast(stats::rnorm(10, 3), model=ans)
+#' summary(ans)
+#' plot(ans)
 
 
 updateForecast = function(newErrors, model){
