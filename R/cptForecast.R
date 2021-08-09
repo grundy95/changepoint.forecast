@@ -116,7 +116,9 @@ cptForecast = function(errors,
                        alpha=0.05,
                        samples=1000,
                        npts=500){
-  #errorCheck()
+  cptForecastErrorCheck(errors=errors, m=m, detector=detector,
+                        forecastErrorType=forecastErrorType, gamma=gamma,
+                        critValue=critValue, alpha=alpha, samples=samples, npts=npts)
   if(forecastErrorType=='Both'){
     ans = cptSeqCUSUM(errors, m=m, detector=detector, gamma=gamma, sigma2=NULL,
                       critValue=critValue, alpha=alpha, samples=samples,
@@ -155,6 +157,100 @@ cptForecast = function(errors,
     stop('forecastErrorType not supported. Please use one of "Both", "Raw" or "Squared"')
   }
 }
+
+
+#' Error checking - cptForecast
+#'
+#' Performs error checking on the arguments passed to cptForecast
+#'
+#' @inheritParams cptForecast
+#'
+#' @return NULL
+cptForecastErrorCheck = function(errors=errors, m=m, detector=detector,
+                                 forecastErrorType=forecastErrorType, gamma=gamma,
+                                 critValue=critValue, alpha=alpha, samples=samples, npts=npts){
+  ## Errors
+  if(any(!is.numeric(errors))){
+    stop("Errors should be a vector of numeric values with no NA values")
+  }else if(any(is.na(errors))||any(errors==Inf)){
+    stop("Errors should be a vector of numeric values with no NA values")
+  }
+
+  ## m
+  if(length(m)!=1 || is.na(m)){
+    stop("m should be a single positive integer such that 1<m<n, where n is the length of
+         the vector of errors")
+  }else if(m != as.integer(m)){
+    stop("m should be a single positive integer such that 1<m<n, where n is the length of
+         the vector of errors")
+  }else if((m<2)||(m>=length(errors))){
+    stop("m should be a single positive integer such that 1<m<n, where n is the length of
+         the vector of errors")
+  }
+
+  ## detector
+  if(!(detector %in% c("CUSUM", "CUSUM1", "PageCUSUM", "PageCUSUM1"))){
+    stop("Detector must be one of 'CUSUM', 'CUSUM1', 'PageCUSUM', 'PageCUSUM1'. Note these
+    are case-sensitive")
+  }
+
+  ## forecastErrorType
+  if(!(forecastErrorType %in% c("Both", "Raw", "Squared"))){
+    stop("forecastErrorType must be one of 'Both', 'Raw', 'Squared'. Note these are case-sensitive")
+  }
+
+  ## gamma
+  if(any(!is.numeric(gamma))||any(is.na(gamma))){
+    stop("gamma should be a single positive number such that 0<=gamma<0.5")
+  }else if(length(gamma)!=1){
+    stop("gamma should be a single positive number such that 0<=gamma<0.5")
+  }else if(!((gamma>=0)&&(gamma<0.5))){
+    stop("gamma should be a single positive number such that 0<=gamma<0.5")
+  }
+
+  ## critValue
+  if(any(is.numeric(critValue))){
+    if(length(critValue)!=1){
+      stop("critValue should either be 'Lookup', 'Simulate' or a single positive numeric")
+    }else if((critValue<0)||(critValue==Inf)||is.na(critValue)){
+      stop("critValue should either be 'Lookup', 'Simulate' or a single positive numeric")
+    }
+  }else if(!(critValue %in% c("Lookup", "Simulate"))){
+    stop("critValue should either be 'Lookup', 'Simulate' or a single positive numeric")
+  }
+
+  ## alpha
+  if(any(!is.numeric(alpha))||any(is.na(alpha))){
+    stop("alpha should be a single positive number such that 0<=alpha<=1")
+  }else if(length(alpha)!=1){
+    stop("alpha should be a single positive number such that 0<=alpha<=1")
+  }else if((alpha<0)||(alpha>1)){
+    stop("alpha should be a single positive number such that 0<=alpha<=1")
+  }
+
+  ## samples
+  if(any(!is.numeric(samples))||any(is.na(samples))){
+    stop("samples should be a single positive integer greater than 20")
+  }else if(length(samples)!=1){
+    stop("samples should be a single positive integer greater than 20")
+  }else if(samples==Inf || samples != as.integer(samples)){
+    stop("samples should be a single positive integer greater than 20")
+  }else if(samples<20){
+    stop("samples should be a single positive integer greater than 20")
+  }
+
+  ## npts
+  if(any(!is.numeric(npts))||any(is.na(npts))){
+    stop("npts should be a single positive integer greater than 20")
+  }else if(length(npts)!=1){
+    stop("npts should be a single positive integer greater than 20")
+  }else if(npts==Inf || npts != as.integer(npts)){
+    stop("npts should be a single positive integer greater than 20")
+  }else if(npts<20){
+    stop("npts should be a single positive integer greater than 20")
+  }
+}
+
 
 
 
