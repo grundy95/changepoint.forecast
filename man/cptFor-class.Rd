@@ -4,11 +4,10 @@
 \name{cptFor-class}
 \alias{cptFor-class}
 \alias{cptFor}
-\alias{plot,cptFor,ANY-method}
 \alias{plot,cptFor-method}
 \title{S4 class for a forecast changepoint object}
 \usage{
-\S4method{plot}{cptFor,ANY}(x)
+\S4method{plot}{cptFor}(x)
 }
 \arguments{
 \item{x}{an object of class \code{cptFor}}

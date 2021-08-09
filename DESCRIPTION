@@ -1,13 +1,14 @@
 Package: changepoint.forecast
 Title: Sequential Changepoint Detection of Forecast Errors
-Version: 0.3.0
+Version: 0.3.1
 Authors@R: 
-    person(given = "Thomas",
+    c(person(given = "Thomas",
            family = "Grundy",
            role = c("aut", "cre"),
            email = "t.grundy1@lancaster.ac.uk",
-           comment = c(ORCID = "0000-0003-1723-3217"))
-Description: Performs online changepoint detection on forecast errors to identify if forecasts have become inaccurate. 
+           comment = c(ORCID = "0000-0003-1723-3217")),
+    person("Rebecca", "Killick", role="ths"))
+Description: Performs online changepoint detection on forecast errors to identify if/when forecasting models have become inaccurate. 
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -18,7 +19,6 @@ Imports:
     fdapace,
     pbapply,
     dplyr,
-    forecast,
     stats,
     tibble,
     tidyr,
@@ -26,9 +26,8 @@ Imports:
     methods,
     rlang,
     tidyselect,
-    smooth,
     readr,
-    nnfor
+    Rdpack (>= 0.7)
 Depends: 
     R (>= 2.10)
 Suggests: 
@@ -36,4 +35,5 @@ Suggests:
     knitr,
     rmarkdown
 Config/testthat/edition: 3
+RdMacros: Rdpack
 VignetteBuilder: knitr
