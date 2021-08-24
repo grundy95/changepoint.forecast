@@ -36,11 +36,11 @@ devtools::install_github("grundy95/changepoint.forecast")
 ## Vignette
 
 For basic usage and how to implement this framework in an online
-fashion, see the Vignette which can be accessed with
+fashion, see the Vignettes which can be accessed with
 
 ``` r
-vignette('changepoint.forecast', package='changepoint.forecast')
-#> Warning: vignette 'changepoint.forecast' not found
+vignette(package='changepoint.forecast')
+#> no vignettes found
 ```
 
 <!-- You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. You could also use GitHub Actions to re-render `README.Rmd` every time you push. An example workflow can be found here: <https://github.com/r-lib/actions/tree/master/examples>. -->

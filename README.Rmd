@@ -40,10 +40,10 @@ devtools::install_github("grundy95/changepoint.forecast")
 ```
 ## Vignette
 
-For basic usage and how to implement this framework in an online fashion, see the Vignette which can be accessed with
+For basic usage and how to implement this framework in an online fashion, see the Vignettes which can be accessed with
 
 ```{r vignette}
-vignette('changepoint.forecast', package='changepoint.forecast')
+vignette(package='changepoint.forecast')
 ```
 
 

@@ -53,7 +53,9 @@ cptSeqCUSUM = function(X,
                        samples=1000,
                        npts=500,
                        Class = TRUE){
-  #errorCheck()
+  cptSeqCUSUMerroCheck(X=X, m=m, detector=detector, gamma=gamma, sigma2=sigma2,
+                       critValue=critValue, alpha=alpha, samples=samples,
+                       npts=npts, Class=Class)
   N = length(X)
   n = N-m
 
@@ -76,14 +78,12 @@ cptSeqCUSUM = function(X,
       cusumA = cusumA + X[i+m] - trainMean
       cusumValues[i+1] = abs(cusumA)
     }
-  }else if(detector=='CUSUM1'){
+  }else{
     for(i in 1:n){
       cusumValues[i+1] = cusumValues[i] + X[m+i] - trainMean
     }
-  }else{
-    stop('changepoint detector not supported.
-         Please choose between "PageCUSUM", "PageCUSUM1", "CUSUM" or "CUSUM1"')
   }
+
   cusumValues = cusumValues[-1]
   weightValues = purrr::map_dbl(1:n, ~weightFun(m=m, k=.x, gamma=gamma))
   if(critValue=='Lookup'){
@@ -91,7 +91,7 @@ cptSeqCUSUM = function(X,
   }else if(critValue=='Simulate'){
     critValue = simCritVal(samples=samples, alpha=alpha, detector=detector, gamma=gamma, npts=npts)
   }else if(!is.numeric(critValue)){
-    stop('critValue should either be "Lookup", "Simulate" or a single number containing the critical value to be used')
+    stop("critValue should either be 'Lookup', 'Simulate' or a single positive numeric")
   }
   if(is.null(sigma2)){
     sigma2 = stats::var(X[1:m])
@@ -137,4 +137,104 @@ weightFun = function(m, k, gamma=0){
     stop('gamma must be between 0 and 1/2')
   }
   return(sqrt(m)*(1 + k/m)*((k/(k+m))^gamma))
+}
+
+#' Error checking - cptSeqCUSUM
+#'
+#' Performs error checking on arguments given to cptSeqCUSUM
+#'
+#' @inheritParams cptSeqCUSUM
+cptSeqCUSUMerroCheck= function(X=X, m=m, detector=detector, gamma=gamma, sigma2=sigma2,
+                     critValue=critValue, alpha=alpha, samples=samples,
+                     npts=npts, Class=Class){
+  ## X
+  if(any(!is.numeric(X))){
+    stop("X should be a vector of numeric values with no NA values")
+  }else if(any(is.na(X))||any(X==Inf)){
+    stop("X should be a vector of numeric values with no NA values")
+  }
+
+  ## m
+  if(length(m)!=1 || is.na(m)){
+    stop("m should be a single positive integer such that 1<m<n, where n is the length of
+         the vector of errors")
+  }else if(m != as.integer(m)){
+    stop("m should be a single positive integer such that 1<m<n, where n is the length of
+         the vector of errors")
+  }else if((m<2)||(m>=length(X))){
+    stop("m should be a single positive integer such that 1<m<n, where n is the length of
+         the vector of errors")
+  }
+
+  ## detector
+  if(!(detector %in% c("CUSUM", "CUSUM1", "PageCUSUM", "PageCUSUM1"))){
+    stop("Detector must be one of 'CUSUM', 'CUSUM1', 'PageCUSUM', 'PageCUSUM1'. Note these
+    are case-sensitive")
+  }
+
+  ## gamma
+  if(any(!is.numeric(gamma))||any(is.na(gamma))){
+    stop("gamma should be a single positive number such that 0<=gamma<0.5")
+  }else if(length(gamma)!=1){
+    stop("gamma should be a single positive number such that 0<=gamma<0.5")
+  }else if(!((gamma>=0)&&(gamma<0.5))){
+    stop("gamma should be a single positive number such that 0<=gamma<0.5")
+  }
+
+  ## sigma2
+  if(any(!is.null(sigma2))){
+    if(any(!is.numeric(sigma2))||any(is.na(sigma2))){
+      stop("sigma2 should be a single positive number greater than 0")
+    }else if(length(sigma2)!=1){
+      stop("sigma2 should be a single positive number greater than 0")
+    }else if(!((sigma2>=0)&&(sigma2<Inf))){
+      stop("sigma2 should be a single positive number greater than 0")
+    }
+  }
+  ## critValue
+  if(any(is.numeric(critValue))){
+    if(length(critValue)!=1){
+      stop("critValue should either be 'Lookup', 'Simulate' or a single positive numeric")
+    }else if((critValue<0)||(critValue==Inf)||is.na(critValue)){
+      stop("critValue should either be 'Lookup', 'Simulate' or a single positive numeric")
+    }
+  }else if(!(critValue %in% c("Lookup", "Simulate"))){
+    stop("critValue should either be 'Lookup', 'Simulate' or a single positive numeric")
+  }
+
+  ## alpha
+  if(any(!is.numeric(alpha))||any(is.na(alpha))){
+    stop("alpha should be a single positive number such that 0<=alpha<=1")
+  }else if(length(alpha)!=1){
+    stop("alpha should be a single positive number such that 0<=alpha<=1")
+  }else if((alpha<0)||(alpha>1)){
+    stop("alpha should be a single positive number such that 0<=alpha<=1")
+  }
+
+  ## samples
+  if(any(!is.numeric(samples))||any(is.na(samples))){
+    stop("samples should be a single positive integer greater than 20")
+  }else if(length(samples)!=1){
+    stop("samples should be a single positive integer greater than 20")
+  }else if(samples==Inf || samples != as.integer(samples)){
+    stop("samples should be a single positive integer greater than 20")
+  }else if(samples<20){
+    stop("samples should be a single positive integer greater than 20")
+  }
+
+  ## npts
+  if(any(!is.numeric(npts))||any(is.na(npts))){
+    stop("npts should be a single positive integer greater than 20")
+  }else if(length(npts)!=1){
+    stop("npts should be a single positive integer greater than 20")
+  }else if(npts==Inf || npts != as.integer(npts)){
+    stop("npts should be a single positive integer greater than 20")
+  }else if(npts<20){
+    stop("npts should be a single positive integer greater than 20")
+  }
+
+  ## Class
+  if(!(Class %in% c(TRUE, FALSE))){
+    stop("Class should be logical, TRUE or FALSE")
+  }
 }

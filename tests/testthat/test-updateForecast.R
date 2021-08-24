@@ -47,3 +47,18 @@ test_that("different forecast error types works",{
   expect_true(is.na(ansSquared@cusum)&&is.na(ansSquared@threshold)&&is.na(ansSquared@tau))
 })
 
+test_that('Error checking - newErrors',{
+  ans = cptForecast(stats::rnorm(100, m=40))
+  expect_error(updateForecast(c('1','2','3','4','5','6','7'), model=ans),
+               "newErrors should be a vector of numeric values with no NA values")
+  expect_error(updateForecast(c(stats::rnorm(99), NA_real_), model=ans),
+               "newErrors should be a vector of numeric values with no NA values")
+  expect_error(updateForecast(c(stats::rnorm(99), Inf), model=ans),
+               "newErrors should be a vector of numeric values with no NA values")
+})
+
+test_that('Error checking - model',{
+  ans = cptForecast(stats::rnorm(100, m=40))
+  expect_error(updateForecast(1, model=list()))
+})
+

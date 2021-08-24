@@ -25,7 +25,7 @@
 
 
 updateForecast = function(newErrors, model){
-  #checks on model and newErrors
+  updateForecastErrorChecks(newErrors=newErrors, model=model)
   cusumLen = length(model@cusum)
   trainMean = model@updateStats[1]
   newWeights = purrr::map_dbl((cusumLen+1):(cusumLen+length(newErrors)),
@@ -119,3 +119,25 @@ updateForecast = function(newErrors, model){
 }
 
 
+#' Error checking - updateForecast
+#'
+#' Performs error checking on arguments given to updateForecast
+#'
+#' @inheritParams updateForecast
+#'
+#' @return NULL
+
+updateForecastErrorChecks = function(newErrors=newErrors, model=model){
+  ## newErrors
+  if(any(!is.numeric(newErrors))){
+    stop("newErrors should be a vector of numeric values with no NA values")
+  }else if(any(is.na(newErrors))||any(newErrors==Inf)){
+    stop("newErrors should be a vector of numeric values with no NA values")
+  }
+
+  if(class(model)!='cptFor'){
+    stop('model must be a cptFor S4 class object. This should be generated from cptForecast')
+  }
+
+
+}
