@@ -23,7 +23,7 @@ set.seed(1)
 
 `changepoint.forecast` is an R package aimed to be used alongside a forecasting model. This package monitors forecast errors produced from a forecasting model and performs sequential changepoint analysis on the forecast errors to detect if/when a forecasting model becomes inaccurate. This package is based upon the paper by @Grundy2021 where this framework is discussed in more detail.
 
-This vignette runs through the basic functionality of the package with some simple examples. Only the main arguments are discussed here with the aim of getting users started with the package. For more details on the methodology; setting problem specific thresholds; and a framework for implementing this methodology in an online manor see the advanced vignette [changepoint.forecast: Methodology and Advanced Functionality](advanced.html).  
+This vignette runs through the basic functionality of the package with some simple examples. Only the main arguments are discussed here with the aim of getting users started with the package. For more details on the methodology and a framework for implementing this methodology in an online manor see the advanced vignette [changepoint.forecast: Methodology and Advanced Functionality](advanced.html).  
 
 ## Main Functionality
 

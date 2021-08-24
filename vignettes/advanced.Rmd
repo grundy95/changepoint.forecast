@@ -5,6 +5,7 @@ vignette: >
   %\VignetteIndexEntry{changepoint.forecast: Methodology and Advanced Functionality}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+bibliography: vignette.bib
 ---
 
 ```{r, include = FALSE}
@@ -14,12 +15,50 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, echo=FALSE}
 library(changepoint.forecast)
 set.seed(1)
 ```
 
-IN DEVELOPMENT
+## Methodology
+
+Here we outline the main methodology used within the package. We define the problem at hand along with the four available CUSUM detectors and how these are used with the raw and squared forecast errors.
+
+Assume we have forecast errors, $\{e_t:t\geq1\}$, from a forecasting model and the corresponding data. We are interested in determining if these forecast errors have undergone a change; indicating that the forecasting model needs re-evaluating. We are interested in looking for changes in the mean and variance of the forecast errors. 
+
+### Mean Changes
+To detect a mean change we have a detector and we flag a changepoint when this detector exceeds some threshold. In the package we have four choices of detectors, namely `CUSUM`, `CUSUM1`, `PageCUSUM` and `PageCUSUM1`. For advise regarding which detector to use see [changepoint.forecast: Basic Functionality](basic.html). Mean changes are detected using the raw forecast errors, this can be achieved by setting `forecastErrorType='Raw'`. Hence, we define the `CUSUM1` detector as
+\[
+	D^{\text{CUSUM1}}(m,k)=\sum\limits_{t=m+1}^{m+k}e_t-\frac{k}{m}\sum\limits_{t=1}^{m}e_t\;,
+\]
+where $m$ is the length of the training period where we assume no changepoints, and $k$ is the current time point.
+
+From this, the detector `CUSUM1` is defined as
+\[
+D^{\text{CUSUM}}(m,k)=\left|D^\text{CUSUM1}(m,k)\right|\;.
+\]
+The detector `PageCUSUM1` is defined as 
+\[
+	D^{\text{PageCUSUM1}}(m,k)=D^\text{CUSUM1}(m,k)-\min\limits_{m\leq t\leq k}D^\text{CUSUM1}(m,t)\;,
+\]
+and finally `PageCUSUM` is defined as
+\[
+	D^\text{PageCUSUM}(m,k)=\max\limits_{m\leq t\leq k}\left|D^\text{CUSUM1}(m,k)-D^\text{CUSUM1}(m,t)\right|\;.
+\]
+
+We flag a changepoint if the chosen detector exceeds a certain threshold, $T$. We define this threshold as
+\[
+T=c_{\alpha}\hat{\sigma}_mg(m,k,\gamma)\;.
+\]
+Here $\hat{\sigma}_m$ is the estimated standard deviation of the forecast errors from the $m$ training samples. $c_\alpha$ is the critical value that can be set using the argument `critValue`. Unless a numerical critical value is given, the critical value is simulated from the asymptotic distributions of the relevant detector and depends on the user-chosen argument $\alpha$ which gives the probability of a false alarm. Note for certain combinations of $\alpha$ and $\gamma$ the critical values have already been simulated and are stored - use `critValue='Lookup'` to access these. Finally, $g(m,k,\gamma)$ is defined as
+\[
+	g(m,k,\gamma)=\sqrt{m}\left(1+\frac{k}{m}\right)\left(\frac{k}{k+m}\right)^\gamma\;,\;\;\;\;\;\text{for }\gamma\in \left[0,1/2\right)\;.
+\]
+If we expect a change to occur early in the forecast errors then we can up the parameter $\gamma$ and this will speed up the detection of the change, see @Fremdt2014 for more details.
+
+#### Variance Change 
+Variance changes in the forecast errors will show as mean changes in the centred squared forecast errors. Hence, we can use the same detectors as above with $e_t$ replaced with $(e_t-\mu_m)^2$ where $\mu_m$ is the mean of the raw forecast errors in the $m$ training forecast errors. To use the squared forecast errors we use `forecastErrorType='Squared'`. Note the `errors` should still be the raw forecast errors, the functions calculates the (centered) squared forecast errors.
+
 
 ## Online Implmentation 
 The function `cptForecast` and `updateForecast` can be used to analyse forecast errors as they become available. Say we have 300 forecast errors as training data and then we have started monitoring new forecast errors for 100 time points. We can see if any changes have been detected in the first 100 time points similarly to above.
