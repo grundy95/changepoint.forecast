@@ -6,6 +6,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: vignette.bib
+csl: american-statistical-association.csl
 ---
 
 ```{r, include = FALSE}
@@ -15,10 +16,16 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup, echo=FALSE}
+```{r setup, echo=TRUE}
+knitr::opts_chunk$set(message = FALSE)
 library(changepoint.forecast)
+library(forecast)
+library(stats)
+library(dplyr)
 set.seed(1)
 ```
+
+This vignette assumes you are already familiar with the basic functionality of the package. If this is not the case, please see [changepoint.forecast: Basic Functionality](basic.html) if something is not clear.
 
 ## Methodology
 
@@ -26,8 +33,8 @@ Here we outline the main methodology used within the package. We define the prob
 
 Assume we have forecast errors, $\{e_t:t\geq1\}$, from a forecasting model and the corresponding data. We are interested in determining if these forecast errors have undergone a change; indicating that the forecasting model needs re-evaluating. We are interested in looking for changes in the mean and variance of the forecast errors. 
 
-### Mean Changes
-To detect a mean change we have a detector and we flag a changepoint when this detector exceeds some threshold. In the package we have four choices of detectors, namely `CUSUM`, `CUSUM1`, `PageCUSUM` and `PageCUSUM1`. For advise regarding which detector to use see [changepoint.forecast: Basic Functionality](basic.html). Mean changes are detected using the raw forecast errors, this can be achieved by setting `forecastErrorType='Raw'`. Hence, we define the `CUSUM1` detector as
+#### Mean Changes
+To detect a mean change, we choose a detector and we flag a changepoint when this detector exceeds some threshold. In the package we have four choices of detectors, namely `CUSUM`, `CUSUM1`, `PageCUSUM` and `PageCUSUM1`. For advise regarding which detector to use see [changepoint.forecast: Basic Functionality](basic.html). Mean changes are detected using the raw forecast errors, this can be achieved by setting `forecastErrorType='Raw'`. Hence, we define the `CUSUM1` detector as
 \[
 	D^{\text{CUSUM1}}(m,k)=\sum\limits_{t=m+1}^{m+k}e_t-\frac{k}{m}\sum\limits_{t=1}^{m}e_t\;,
 \]
@@ -54,11 +61,55 @@ Here $\hat{\sigma}_m$ is the estimated standard deviation of the forecast errors
 \[
 	g(m,k,\gamma)=\sqrt{m}\left(1+\frac{k}{m}\right)\left(\frac{k}{k+m}\right)^\gamma\;,\;\;\;\;\;\text{for }\gamma\in \left[0,1/2\right)\;.
 \]
-If we expect a change to occur early in the forecast errors then we can up the parameter $\gamma$ and this will speed up the detection of the change, see @Fremdt2014 for more details.
+If we expect a change to occur early in the forecast errors then we can increase the parameter $\gamma$ and this will speed up the detection of the change, see @Fremdt2014 for more details.
 
 #### Variance Change 
-Variance changes in the forecast errors will show as mean changes in the centred squared forecast errors. Hence, we can use the same detectors as above with $e_t$ replaced with $(e_t-\mu_m)^2$ where $\mu_m$ is the mean of the raw forecast errors in the $m$ training forecast errors. To use the squared forecast errors we use `forecastErrorType='Squared'`. Note the `errors` should still be the raw forecast errors, the functions calculates the (centered) squared forecast errors.
+Variance changes in the forecast errors will show as mean changes in the centred squared forecast errors. Hence, we can use the same detectors as above with $e_t$ replaced with $(e_t-\mu_m)^2$ where $\mu_m$ is the mean of the raw forecast errors in the $m$ training forecast errors. To use the squared forecast errors we use `forecastErrorType='Squared'`. Note the `errors` should still be the raw forecast errors, the functions calculates the (centred) squared forecast errors for you.
 
+#### Summary
+This section highlights the main aspects of the methodology used. For more details on the different detectors see @Fremdt2014. For more details on using PageCUSUM detector with forecast errors see @Grundy2021. In practice, we recommend using `detector='PageCUSUM'` unless you have good reason for using one of the alternatives. The theoretical thresholds presented above can be quite conservative and lead to longer than desired detection delays. Hence, the next section details how to set a threshold for a data example that controls the false positive rate using an alternative method.
+
+## Problem Specific Threshold
+Here we detail how to set a problem specific threshold based on average run lengths rather than asymptotics. The theoretical thresholds used as default in the package control the false positive rate indefinitely as $m\rightarrow\infty$. Here, we generate a simulated threshold, which, for a specified run length of the problem will control the false positive rate. Say you want a 5\% chance of a false alarm occurring in the next 5000 time points, that is the sort of threshold we will set here.
+
+As we are using forecast errors, we should have access to a forecasting model and therefore we can simulate from this forecasting model to create data that doesn't contain any changes. Assume, we have a basic AR(1) forecasting model with autoregressive parameter $\phi=0.5$. Now say we want to make sure that within 1000 time points we have a 5\% chance of a false positive rate (after a training period of $m=200$. Hence we will generate simulated data from our forecasting model for 1000 time points.
+
+```{r}
+N=1000
+m=200
+simReps = 500
+simData = purrr::rerun(simReps, as.numeric(arima.sim(n=N+m, 
+                                            model=list(order=c(1,0,0), ar=0.5))))
+```
+
+Now we have our simulated data from our forecasting model we can run `cptForecast` on each data set. Here we will just consider the raw forecast errors.
+
+```{r}
+simCUSUM = purrr::map(simData, ~ cptForecast(.x, 
+                                             m=m, 
+                                             forecastErrorType='Raw'))
+```
+
+Now recall the definition of the threshold
+\[
+T=c_{\alpha}\hat{\sigma}_mg(m,k,\gamma)\;.
+\]
+we can directly control $c_\alpha$ by setting `critValue` as a numeric value. Hence the aim here is to find an appropriate value such that the detector won't exceed the threshold very often. To do this we can keep increasing `critValues` until, across all the different simulated data sets, only 5\% of the CUSUM detectors exceed the threshold at some point in the monitoring period. Note we also need to account for $\hat{\sigma}_m$ and $g(m,k,\gamma)$.
+
+```{r}
+crit=0.1
+FDP=1 #False detection percentage across all data sets
+gFunc = purrr::map_dbl(1:N, ~ changepoint.forecast:::weightFun(m=m, k=.x))
+while(FDP>0.05){
+  ans = purrr::map_lgl(simCUSUM, ~ any(.x@cusum>crit*sqrt(.x@errorsVar)*gFunc))
+  FDP = sum(ans)/simReps
+  crit = crit+0.05
+}
+crit
+FDP
+```
+
+We can see that we know have a critical value of 3.7 which we can use within `cptForecast` with `critValue=3.7`. 
 
 ## Online Implmentation 
 The function `cptForecast` and `updateForecast` can be used to analyse forecast errors as they become available. Say we have 300 forecast errors as training data and then we have started monitoring new forecast errors for 100 time points. We can see if any changes have been detected in the first 100 time points similarly to above.
@@ -78,7 +129,7 @@ newErrors = rnorm(10)
 ans = updateForecast(newErrors, model=ans)
 summary(ans)
 ```
-We can see still no changes have been detected. You could easily set up a framework where as new data becomes available, the analysis is updated and a flag can be called if a change is detected
+We can see still no changes have been detected. You could easily set up a framework where as new data becomes available, the analysis is updated and a flag can be called if a change is detected.
 
 ```{r online}
 set.seed(1)

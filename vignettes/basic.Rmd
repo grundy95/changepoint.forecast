@@ -6,6 +6,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: vignette.bib
+csl: american-statistical-association.csl
 ---
 
 ```{r, include = FALSE}
@@ -23,11 +24,11 @@ set.seed(1)
 
 `changepoint.forecast` is an R package aimed to be used alongside a forecasting model. This package monitors forecast errors produced from a forecasting model and performs sequential changepoint analysis on the forecast errors to detect if/when a forecasting model becomes inaccurate. This package is based upon the paper by @Grundy2021 where this framework is discussed in more detail.
 
-This vignette runs through the basic functionality of the package with some simple examples. Only the main arguments are discussed here with the aim of getting users started with the package. For more details on the methodology and a framework for implementing this methodology in an online manor see the advanced vignette [changepoint.forecast: Methodology and Advanced Functionality](advanced.html).  
+This vignette runs through the basic functionality of the package with some simple examples. Only the main arguments are discussed here with the aim of getting users started with the package. For more details on the methodology; setting a problem specific threshold, and a framework for implementing this methodology in an online manor see the advanced vignette [changepoint.forecast: Methodology and Advanced Functionality](advanced.html).  
 
 ## Main Functionality
 
-The main function in the package is `cptForecast`. This function takes the forecast errors from a forecasting model and performs sequential changepoint analysis to identify any changepoints. This function can detect first- and second-order changes which include the most common types of change e.g. mean changes and variance changes. Intuitively, if there is a mean change in the data you are forecasting this can cause your forecasting model to become biased which will result in a mean change in the forecast errors - this will be detected by `cptForecast` using the raw or squared forecast errors. Moreover, if there is a variance change in the data being forecasted, this can cause your prediction intervals to become inaccurate and a variance change will occur in your forecast errors - this will be detected by `cptForecast` using the squared forecast errors. For more details on how changes in the data being forecasted manifest in the forecast errors and using the raw or squared forecast errors see @Grundy2021 and [changepoint.forecast: Methodology and Advanced Functionality](advanced.html).
+The main function in the package is `cptForecast`. This function takes the forecast errors from a forecasting model and performs sequential changepoint analysis to identify any changepoints. This function can detect first- and second-order changes which include the most common types of change e.g. mean changes and variance changes. Intuitively, if there is a mean change in the data you are forecasting this can cause your forecasting model to become biased which will result in a mean change in the forecast errors - this will be detected by `cptForecast` using the raw or squared forecast errors specified by the argument `forecastErrorType`. Moreover, if there is a variance change in the data being forecasted, this can cause your prediction intervals to become inaccurate and a variance change will occur in your forecast errors - this will be detected by `cptForecast` using the squared forecast errors. For more details on how changes in the data being forecasted manifest in the forecast errors and using the raw or squared forecast errors see @Grundy2021 and [changepoint.forecast: Methodology and Advanced Functionality](advanced.html).
 
 To use the `cptForecast` function, we need `m` training forecast errors. These forecast errors are assumed to have no changepoints. These training forecast errors should be included in the `errors` argument and the length of the training period is set using the `m` argument. Say we have 500 forecast errors with a mean changepoint occurring at time point 400 (we will simulate these for the examples here), we will use the first 300 of these as the training errors. To perform our analysis on these forecast errors we can use the following code:
 
@@ -51,8 +52,8 @@ When you use the `cptForecast` function it returns an object of class `cptFor`. 
 ## Different Detectors
 The default detector used for the sequential changepoint analysis is Pages 2-sided CUSUM. We recommend always using this detector unless in the following scenarios
 
-- Only interested in mean/variance increases. Here using `detector='PageCUSUM1` would be appropriate as we are only interested in testing for changes in one-direction so a one-sided hypothesis test is needed.
-- We know a change will occur shortly after monitoring. Here using `detector='CUSUM` or `detector='CUSUM1'` would be appropriate depending on whether you are interested in only mean/variance increases.
+- Only interested in mean/variance increases. Here using `detector='PageCUSUM1'` would be appropriate as we are only interested in testing for changes in one-direction so a one-sided hypothesis test is needed.
+- We know a change will occur shortly after monitoring. Here using `detector='CUSUM'` or `detector='CUSUM1'` would be appropriate depending on whether you are interested in only mean/variance increases.
 
 For more details on these detectors see @Grundy2021 and [changepoint.forecast: Methodology and Advanced Functionality](advanced.html).
 
