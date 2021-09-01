@@ -19,7 +19,6 @@ knitr::opts_chunk$set(
 ```{r setup, echo=TRUE}
 knitr::opts_chunk$set(message = FALSE)
 library(changepoint.forecast)
-library(forecast)
 library(stats)
 library(dplyr)
 set.seed(1)
